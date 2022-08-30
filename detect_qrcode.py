@@ -407,7 +407,9 @@ class Detect():
 
     def get_processed_frame_focus(self, ):
         grayscale_processed_frame = cv2.cvtColor(self.processed_frame, cv2.COLOR_BGR2GRAY)
-        self.processed_frame_focus_map = blur_detector.detectBlur(grayscale_processed_frame, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
+        # replace focus detection with conventional method due too large processing time 
+        # self.processed_frame_focus_map = blur_detector.detectBlur(grayscale_processed_frame, downsampling_factor=20, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
+        self.processed_frame_focus_map = cv2.Laplacian(grayscale_processed_frame, cv2.CV_64F).var()
         self.processed_frame_focus = np.mean(self.processed_frame_focus_map)
 
     def qr_is_duplicate(self, ):
@@ -513,9 +515,9 @@ if __name__ == '__main__':
                 if d.debug: d.draw_device_data_text() # 110 ms
                 d.detect_process_qr() # 50 ms
                 if d.debug: d.draw_process_data_text() # 110 ms
-                #d.process_frame_for_saving() # 20 ms
-                #d.get_processed_frame_focus() # ?
-                #d.store_processed_frame_to_ram() # ?
+                d.process_frame_for_saving() # 20 ms
+                d.get_processed_frame_focus() # ?
+                d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

@@ -16,9 +16,10 @@ class Detect():
     white = (255,255,255)
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
-    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera", wake_threshold=129.68402777777777):
+    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera", wake_threshold=129.68402777777777, focus_stacking=False):
         self.mode = mode
         self.wake_threshold = wake_threshold
+        self.focus_stacking = focus_stacking
         self.debug = debug # debug mode will write detection result to frame and display it (slow)
         self.savedir = savedir # folder to save the file
         self.buffer = {}
@@ -337,9 +338,9 @@ class Detect():
         self.processed_frame_focus = np.mean(focus_map)
 
 if __name__ == '__main__':
-    #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
-    d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="video", debug=True)
     cwd = os.path.dirname(__file__)
+    #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video": d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi")) # debug
     d.get_video_parameters() # debug
@@ -380,23 +381,23 @@ if __name__ == '__main__':
                                 d.detect_process_qr() # 50 ms
                                 if d.debug: d.draw_process_data_text() # 110 ms
                                 d.process_frame_for_saving() # 20 ms
-                                if d.mode == "camera": d.get_processed_frame_focus() # ?
-                                if d.mode == "camera": d.store_processed_frame_to_ram() # ?
+                                d.get_processed_frame_focus() # ?
+                                d.store_processed_frame_to_ram() # ?
                                 d.add_to_processed_devices() # ?
                                 continue # skip next line
                     if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 t2 = time.time()
-                if d.mode == "video": d.shrink_original_frame()
+                if d.mode == "video" and d.debug: d.shrink_original_frame()
                 if d.debug: d.imshow_shrunk_original_frame() # 20 ms
-                if d.mode == "video": d.write_combined_frame_to_video_writer() # 5 ms
+                if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
                 print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
             except Exception as e:
-                if d.mode == "camera": d.release_video_writer()
+                if d.mode == "video": d.release_video_writer()
                 print(e)
-        if d.mode == "camera": d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
+        d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()
     d.release_video_writer()
 
     # 330 ms debug and video mode
     # 100 ms video mode
-    #  ms camera mode
+    # ? ms camera mode

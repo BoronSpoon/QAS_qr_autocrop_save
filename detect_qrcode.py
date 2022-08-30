@@ -20,7 +20,7 @@ class Detect():
         self.mode = mode
         self.debug = debug # debug mode will write detection result to frame and display it (slow)
         self.savedir = savedir # folder to save the file
-        self.buffer = []
+        self.buffer = {}
         self.frame_count = 0
         self.frames_available = True
         self.width, self.height = width, height
@@ -253,11 +253,15 @@ class Detect():
         self.processed_frame = self.rotate_and_crop()
 
     def store_processed_frame_to_ram(self,): # store processed image to RAM for low latency instead of disk
-        self.buffer.append({
+        if f"{self.cx}_{self.cy}_{self.ci}_{self.cj}" in self.buffer.keys():
+            focus = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus"]
+            if focus > self.processed_frame_focus : # if the newly obtained frame's focus is worse, keep the old frame in the buffer
+                return None
+        self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"] = {
             "filename": [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"],
             "frame": self.processed_frame,
             "focus": self.processed_frame_focus,
-        })
+        }
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
         for frame_dict in self.buffer:

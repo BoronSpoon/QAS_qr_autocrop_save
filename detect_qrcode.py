@@ -134,12 +134,11 @@ class Detect():
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
             dx_pos = x_pos[1] - x_pos[0]
             dy_pos = y_pos[1] - y_pos[0]
-            dx = np.sign(dx_pos)*(np.abs(dx_pos)-1)*self.marker_real_gap/self.marker_real_width + 1
-            dy = np.sign(dy_pos)*(np.abs(dy_pos)-1)*self.marker_real_gap/self.marker_real_width + 1
+            dx = np.sign(dx_pos)*((np.abs(dx_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)
+            dy = np.sign(dy_pos)*((np.abs(dy_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)
             phi = np.arctan2(dy, dx)
             theta = np.arctan2(centers[1][1] - centers[0][1], centers[1][0] - centers[0][0])
-            # self.angle = theta - phi
-            self.angle = theta
+            self.angle = theta - phi
 
     def get_marker_corner(self):
         x, y = self.corner_qr_dict[self.device][0]["bbox_center"]

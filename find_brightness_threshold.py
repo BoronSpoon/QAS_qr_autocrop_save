@@ -7,8 +7,8 @@ cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 cap.set(cv2.CAP_PROP_FPS, 60)
-min_ = 0
-max_ = 1e9
+min_ = 1e9
+max_ = 0
 for i in range(10000):
     for j in range(100):
         ret, frame = cap.read()

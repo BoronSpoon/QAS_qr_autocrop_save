@@ -15,7 +15,9 @@ class Detect():
     white = (255,255,255)
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
-    def __init__(self, width=1920, height=1080, max_processes=10):
+    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False):
+        self.debug = debug
+        self.savedir = savedir # folder to save the file
         self.buffer = []
         self.frame_count = 0
         self.frames_available = True
@@ -248,11 +250,14 @@ class Detect():
         })
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
-        cwd = os.path.dirname(__file__)
         for frame_dict in self.buffer:
             filename = frame_dict["filename"]
             frame = frame_dict["frame"]
-            cv2.imwrite(os.path.join(cwd, *filename), frame) # todo: makedir when dir doesnt exist for nested directories
+            directory = os.path.join(self.savedir, *filename[:-1])
+            path = os.path.join(self.savedir, *filename)
+            if not os.path.isdir(directory):
+                os.mkdirs(directory)
+            cv2.imwrite(path, frame)
 
     def detect_monitor_wake(self, ): 
         # read frame and take max value: if it is not 0, the monitor is awake
@@ -288,9 +293,6 @@ class Detect():
         if self.frame_count == self.total_frame_count:
             self.frames_available = False
         ret, self.original_frame = self.cap.read()
-        #if not ret:
-        #    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        #ret, self.original_frame = self.cap.read()
 
     def read_image(self, path=None):
         d.original_frame = cv2.imread(path)
@@ -308,7 +310,7 @@ class Detect():
         self.writer.release()
 
 if __name__ == '__main__':
-    d = Detect()
+    d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"))
     cwd = os.path.dirname(__file__)
     d.prepare_capture(os.path.join(cwd, "videos", "1.avi"))
     d.prepare_video_writer(os.path.join(cwd, "videos", "1_result.avi")) # debug
@@ -327,35 +329,35 @@ if __name__ == '__main__':
                 #d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
                 d.preprocess()
                 t1 = time.time()
-                d.detect_rough()
-                d.reset_processed_devices()
+                d.detect_rough() # 35 ms
+                d.reset_processed_devices() # 2 ms
                 for d.result, d.bbox in zip(d.results, d.bboxes):
                     if d.is_corner_qr(): # get bounding box for only corner QR code
-                        d.decode_corner_qr()
+                        d.decode_corner_qr() # 0 ms
                         if d.device_has_not_been_processed(): # process only one corner_QR for each device(x_pos, y_pos)
-                            d.extend_bbox()
-                            d.crop_frame()
-                            ret = d.detect_precise()
+                            d.extend_bbox() # 0 ms
+                            d.crop_frame() # 5 ms
+                            ret = d.detect_precise() # 50 ms
                             if ret:
-                                d.shift_bounding_box_to_image_coordinate()
-                                d.draw_precise_marker_bounding_box()
-                                d.get_marker_width()
-                                d.get_angle()
-                                d.get_marker_corner()
-                                d.get_device_corner()
-                                d.draw_corner_circles()
-                                d.get_device_bounding_box()
-                                d.draw_device_bounding_box()
-                                d.draw_device_data_text()
-                                d.detect_process_qr()
-                                d.draw_process_data_text()
-                                d.process_frame_for_saving()
+                                d.shift_bounding_box_to_image_coordinate() # 0 ms
+                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+                                d.get_marker_width() # 0 ms
+                                d.get_angle() # 0 ms
+                                d.get_marker_corner() # 0 ms
+                                d.get_device_corner() # 0 ms
+                                if d.debug: d.draw_corner_circles() # 0 ms
+                                d.get_device_bounding_box() # 0 ms
+                                if d.debug: d.draw_device_bounding_box() # 0 ms
+                                if d.debug: d.draw_device_data_text() # 110 ms
+                                d.detect_process_qr() # 50 ms
+                                if d.debug: d.draw_process_data_text() # 110 ms
+                                d.process_frame_for_saving() # 20 ms
                                 d.add_to_processed_devices()
                                 continue # skip next line
-                    d.draw_rough_marker_bounding_box()
+                    if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 t2 = time.time()
-                d.imshow_shrunk_original_frame()
-                d.write_combined_frame_to_video_writer()
+                if d.debug: d.imshow_shrunk_original_frame() # 20 ms
+                if d.debug: d.write_combined_frame_to_video_writer() # 5 ms
                 print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
             except Exception as e:
                 d.release_video_writer()

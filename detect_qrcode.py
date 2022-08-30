@@ -5,6 +5,7 @@ import os, sys
 import numpy as np
 import pyboof as pb
 import decode_qrcode
+import blur_detector
 from textwrap import dedent
 cwd = os.path.dirname(__file__)
 
@@ -255,6 +256,7 @@ class Detect():
         self.buffer.append({
             "filename": [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"],
             "frame": self.processed_frame,
+            "focus": self.processed_frame_focus,
         })
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
@@ -317,6 +319,10 @@ class Detect():
     def release_video_writer(self, ):
         self.writer.release()
 
+    def get_processed_frame_focus(self, ):
+        focus_map = blur_detector.detectBlur(self.processed_image, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
+        self.processed_frame_focus = np.mean(focus_map)
+
 if __name__ == '__main__':
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
     d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="video", debug=True)
@@ -362,6 +368,7 @@ if __name__ == '__main__':
                                 d.detect_process_qr() # 50 ms
                                 if d.debug: d.draw_process_data_text() # 110 ms
                                 d.process_frame_for_saving() # 20 ms
+                                d.get_processed_frame_focus() # ?
                                 d.add_to_processed_devices()
                                 continue # skip next line
                     if d.debug: d.draw_rough_marker_bounding_box() # 0 ms

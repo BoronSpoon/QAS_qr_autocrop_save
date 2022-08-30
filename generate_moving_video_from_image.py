@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import os
 
-#frame_count = 600
-frame_count = 10
+frame_count = 200
+# frame_count = 10
 rotations = [np.pi/180*np.random.choice(np.linspace(-2,2,101)) for i in range(frame_count)] # max 5 degree rotation per frame
 rotations[0] = 0
 rotations = np.add.accumulate(rotations)
@@ -34,12 +34,11 @@ shift_ys = np.hstack([shift_ys, shift_ys[:-1][::-1]])
 
 cwd = os.path.dirname(__file__)
 writer = cv2.VideoWriter(
-    #os.path.join(cwd, "videos", "1.avi"),
-    os.path.join(cwd, "videos", "2.avi"),
+    os.path.join(cwd, "test", "1.avi"),
     cv2.VideoWriter_fourcc('M','J','P','G'), 60, (1920, 1080)
 )
 
-original_frame = cv2.imread(os.path.join(cwd, "images", "test_images", "1.png"))
+original_frame = cv2.imread(os.path.join(cwd, "test", "1.png"))
 for rotation, zoom, shift_x, shift_y in zip(rotations, zooms, shift_xs, shift_ys):
     M1 = np.array([[zoom,0,0], [0,zoom,0]]).astype(np.float32)
     M2 = np.array([[1,0,int(shift_x)], [0,1,int(shift_y)]]).astype(np.float32)

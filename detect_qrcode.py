@@ -188,6 +188,7 @@ class Detect():
 
     def decode_corner_qr(self):
         self.x_pos, self.y_pos, self.device_width, self.device_height, self.marker_real_width, self.marker_real_gap, self.cx, self.cy, self.ci, self.cj, self.operator_name, self.device_name = decode_qrcode.decode_corner_qr(self.result)
+        print(self.device_name)
 
     def decode_process_qr(self, result=None):
         if result is None:
@@ -413,7 +414,7 @@ if __name__ == '__main__':
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
     d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
-    if d.mode == "video": d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi")) # debug
+    if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
     d.get_video_parameters() # debug
     if d.mode == "camera": d.prepare_capture(0)
     if d.mode == "camera": d.set_camera_parameters(width=1920, height=1080, fps=60)

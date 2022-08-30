@@ -104,10 +104,10 @@ def decode_corner_qr(string):
     cj = alphanumeric2numeric(string[23:25])
     # operator name (8 letters: yamada)
     # alphanumeric*8
-    operator_name = string[25:33]
+    operator_name = string[25:33].rstrip()
     # sample name (14 letters: TY_test_condition)
     # alphanumeric*14
-    sample_name = string[33:46]
+    sample_name = string[33:46].rstrip()
     return x_pos, y_pos, device_width, device_height, marker_size, marker_gap, cx, cy, ci, cj, operator_name, sample_name
 
 def decode_process_qr(string):
@@ -122,5 +122,5 @@ def decode_process_qr(string):
     process_count = alphanumeric2numeric(string[1:3])
     # process name (26 letters: TY_test_condition)
     # alphanumeric*26
-    process_name = string[3:28]
+    process_name = string[3:28].rstrip()
     return process_count, process_name

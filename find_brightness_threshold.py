@@ -24,7 +24,7 @@ for i in range(10000):
         max_max_ = max(np.max(frame), max_max_)
     print(f"(mean) min,max={mean_min_}, {mean_max_}, (min) min,max={min_min_}, {min_max_}, (max) min,max={max_min_}, {max_max_}")
     
-# when pc is off: 
+# when pc is off: (mean) min,max=129.68402777777777, 129.68402777777777, (min) min,max=0, 0, (max) min,max=255, 255
 # when light is off: (mean) min,max=12.984489776234568, 149.94212593235596, (min) min,max=0, 0, (max) min,max=255, 255
 # when light is off and sample is on:
 # when light is on:

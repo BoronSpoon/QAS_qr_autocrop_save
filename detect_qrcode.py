@@ -16,7 +16,7 @@ class Detect():
     white = (255,255,255)
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
-    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera", wake_threshold=20):
+    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera", wake_threshold=129.68402777777777):
         self.mode = mode
         self.wake_threshold = wake_threshold
         self.debug = debug # debug mode will write detection result to frame and display it (slow)
@@ -277,16 +277,24 @@ class Detect():
     def detect_monitor_wake(self, ): 
         # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
         while True:
-            if np.mean(self.original_frame) > self.wake_threshold:
+            if abs(np.mean(self.original_frame) - self.wake_threshold) > 1:
                 self.monitor_is_awake = True
+                print("monitor is awake")
                 break
             time.sleep(10)
     
     def detect_monitor_sleep(self, ):
         # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
-        if np.mean(self.original_frame) < self.wake_threshold:
-            self.monitor_is_awake = False
-        pass
+        count = 0
+        while True:
+            if count > 10:
+                self.monitor_is_awake = False
+                print("monitor is in sleep")
+                break
+            if abs(np.mean(self.original_frame) - self.wake_threshold) < 1:
+                count += 1
+            else:
+                break
 
     def prepare_capture(self, path=None):
         self.cap = cv2.VideoCapture(path)

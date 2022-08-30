@@ -367,10 +367,7 @@ if __name__ == '__main__':
             except Exception as e:
                 if d.mode == "camera": d.release_video_writer()
                 print(e)
-        #d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
-        #while True:
-        #    if cv2.waitKey(1) & 0xFF == ord('q'):
-        #        break
+        if d.mode == "camera": d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()
     d.release_video_writer()
 

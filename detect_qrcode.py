@@ -76,31 +76,35 @@ class Detect():
 
     def get_marker_width(self):
         if d.corner_qr_count_for_device() == 1:
-            bbox = self.corner_qr_dict[self.device]["bbox"]
-            self.marker_width = self.get_mean_distance(np.array(
-                [bbox[0], bbox[1]],
-                [bbox[1], bbox[2]],
-                [bbox[2], bbox[3]],
-                [bbox[3], bbox[0]],
-            ))
-            self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
+            bbox = self.corner_qr_dict[self.device][0]["bbox"]
+            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
+            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
+            self.marker_width = self.get_mean_distance(np.array([
+                [bbox[0][0]-bbox[1][0], bbox[0][1]-bbox[1][1]],
+                [bbox[1][0]-bbox[2][0], bbox[1][1]-bbox[2][1]],
+                [bbox[2][0]-bbox[3][0], bbox[2][1]-bbox[3][1]],
+                [bbox[3][0]-bbox[0][0], bbox[3][1]-bbox[0][1]],
+            ]))
+            self.marker_gap = self.marker_width*marker_real_gap/marker_real_width
         elif d.corner_qr_count_for_device() == 2:
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
+            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
+            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
             dx_pos = x_pos[0] - x_pos[1]
             dy_pos = y_pos[0] - y_pos[1]
-            distance = self.get_mean_distance(*centers)
+            distance = self.get_mean_distance(np.array([[dx_pos, dy_pos]]))
             self.marker_width = np.sqrt(distance/(
             ((
-                (dx_pos-1)*self.marker_real_gap/self.marker_real_width + 1)*(
-                (dy_pos-1)*self.marker_real_gap/self.marker_real_width + 1)
+                (abs(dx_pos)-1)*marker_real_gap/marker_real_width + 1)*(
+                (abs(dy_pos)-1)*marker_real_gap/marker_real_width + 1)
             )))
-            self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
+            self.marker_gap = self.marker_width*marker_real_gap/marker_real_width
 
     def get_angle(self):
         if d.corner_qr_count_for_device() == 1:
-            bbox = self.corner_qr_dict[self.device]["bbox"]
+            bbox = self.corner_qr_dict[self.device][0]["bbox"]
             self.angles = np.zeros(4)
             self.angles[0] = np.arctan2(bbox[2][1] - bbox[3][1], bbox[2][0] - bbox[3][0]) - np.pi*0/2
             self.angles[1] = np.arctan2(bbox[3][1] - bbox[0][1], bbox[3][0] - bbox[0][0]) - np.pi*1/2
@@ -113,16 +117,18 @@ class Detect():
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
+            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
+            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
             dx_pos = x_pos[0] - x_pos[1]
             dy_pos = y_pos[0] - y_pos[1]
-            dx = (dx_pos-1)*self.marker_real_gap/self.marker_real_width + 1
-            dy = (dy_pos-1)*self.marker_real_gap/self.marker_real_width + 1
+            dx = (dx_pos-1)*marker_real_gap/marker_real_width + 1
+            dy = (dy_pos-1)*marker_real_gap/marker_real_width + 1
             phi = np.arctan2(dy, dx)
             theta = np.arctan2(centers[1][1] - centers[0][1], centers[1][0] - centers[0][0])
             self.angle = theta - phi
 
     def get_marker_corner(self):
-        x, y = self.corner_qr_dict[self.device][0]["center"]
+        x, y = self.corner_qr_dict[self.device][0]["bbox_center"]
         width, height = self.marker_width/2, self.marker_width/2
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.marker_corner = [x - (c*width-s*height), y - (s*width+c*height)]
@@ -170,7 +176,7 @@ class Detect():
     def extend_bbox(self):
         # get bounding box for the qr code
         min_x_, max_x_, min_y_, max_y_ = np.min(self.bbox, axis=0)[0], np.max(self.bbox, axis=0)[0], np.min(self.bbox, axis=0)[1], np.max(self.bbox, axis=0)[1]
-        self.center_x, self.center_y = self.center
+        self.center_x, self.center_y = self.bbox_center
         span_x_, span_y_ = max_x_ - self.center_x, max_y_ - self.center_y
         # extend bounding box to fit whole qr code
         self.span_x, self.span_y = self.bbox_padding_ratio*span_x_, self.bbox_padding_ratio*span_y_
@@ -188,7 +194,7 @@ class Detect():
 
     def decode_corner_qr(self):
         self.x_pos, self.y_pos, self.device_width, self.device_height, self.marker_real_width, self.marker_real_gap, self.cx, self.cy, self.ci, self.cj, self.operator_name, self.device_name = decode_qrcode.decode_corner_qr(self.result)
-        print(self.device_name)
+        self.bbox_center = np.mean(np.array(self.bbox), axis=0)
 
     def decode_process_qr(self, result=None):
         if result is None:
@@ -391,23 +397,30 @@ class Detect():
     def add_to_corner_qr_dict(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if device not in self.corner_qr_dict.keys():
-            self.corner_qr_dict[device] = {
+            self.corner_qr_dict[device] = [{
                 "x_pos": self.x_pos,
                 "y_pos": self.y_pos,
                 "bbox": self.bbox,
                 "bbox_center": self.bbox_center,
-            }
+                "marker_real_width": self.marker_real_width,
+                "marker_real_gap": self.marker_real_gap,
+            }]
         else:
             self.corner_qr_dict[device].append({
                 "x_pos": self.x_pos,
                 "y_pos": self.y_pos,
                 "bbox": self.bbox,
                 "bbox_center": self.bbox_center,
+                "marker_real_width": self.marker_real_width,
+                "marker_real_gap": self.marker_real_gap,
             })
 
     def corner_qr_count_for_device(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        return len(self.corner_qr_dict[device])
+        if device in self.corner_qr_dict:
+            return len(self.corner_qr_dict[device])
+        else:
+            return 0
 
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)

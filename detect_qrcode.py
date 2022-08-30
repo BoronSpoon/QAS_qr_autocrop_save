@@ -148,15 +148,15 @@ class Detect():
         self.marker_corner = [x + (c*width-s*height), y + (s*width+c*height)]
 
     def get_device_corner(self):
-        width = self.marker_gap * (self.device_width-1) + self.marker_width
-        height = self.marker_gap * (self.device_height-1) + self.marker_width
+        width = self.marker_gap * self.device_width + self.marker_width
+        height = self.marker_gap * self.device_height + self.marker_width
         x, y = self.marker_corner
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.device_corner = [x - (c*width-s*height), y - (s*width+c*height)]
 
     def get_device_bounding_box(self, ):
-        width = self.marker_gap * (self.device_width-1) + self.marker_width
-        height = self.marker_gap * (self.device_height-1) + self.marker_width
+        width = self.marker_gap * self.device_width
+        height = self.marker_gap * self.device_height
         x, y = self.device_corner
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.device_bbox = np.array([

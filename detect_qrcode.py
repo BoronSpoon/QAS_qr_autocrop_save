@@ -148,8 +148,10 @@ class Detect():
         self.marker_corner = [x + (c*width-s*height), y + (s*width+c*height)]
 
     def get_device_corner(self):
-        width = self.marker_gap * self.device_width + self.marker_width
-        height = self.marker_gap * self.device_height + self.marker_width
+        x_pos = self.corner_qr_dict[self.device][0]["x_pos"]
+        y_pos = self.corner_qr_dict[self.device][0]["y_pos"]
+        width = self.marker_gap * (x_pos-1) + self.marker_width
+        height = self.marker_gap * (y_pos-1) + self.marker_width
         x, y = self.marker_corner
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.device_corner = [x - (c*width-s*height), y - (s*width+c*height)]
@@ -511,11 +513,11 @@ if __name__ == '__main__':
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_data_text() # 110 ms
-                #d.detect_process_qr() # 50 ms
-                #if d.debug: d.draw_process_data_text() # 110 ms
-                #d.process_frame_for_saving() # 20 ms
-                #d.get_processed_frame_focus() # ?
-                #d.store_processed_frame_to_ram() # ?
+                d.detect_process_qr() # 50 ms
+                if d.debug: d.draw_process_data_text() # 110 ms
+                d.process_frame_for_saving() # 20 ms
+                # d.get_processed_frame_focus() # ?
+                d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

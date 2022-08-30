@@ -199,13 +199,18 @@ class Detect():
         return len(d.detector2.detections) > 0
 
     def reset_processed_devices(self,):
-        self.processed_devices = []
+        self.processed_devices = {}
 
-    def device_has_not_been_processed(self, ):
-        return [self.cx, self.cy, self.ci, self.cj, self.device_name] not in self.processed_devices
+    def device_has_not_been_processed_twice(self, ):
+        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
+        return key_ not in self.processed_devices.keys() or self.processed_devices[key_] == 1
 
     def add_to_processed_devices(self,):
-        self.processed_devices.append([self.cx, self.cy, self.ci, self.cj, self.device_name])
+        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
+        if key_ not in self.processed_devices.keys():
+            self.processed_devices[key_] = 0
+        else:
+            self.processed_devices[key_] += 1
 
     def shrink_original_frame(self,):
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])
@@ -380,7 +385,7 @@ if __name__ == '__main__':
                 for d.result, d.bbox in zip(d.results, d.bboxes):
                     if d.is_corner_qr(): # get bounding box for only corner QR code
                         d.decode_corner_qr() # 0 ms
-                        if d.device_has_not_been_processed(): # process only one corner_QR for each device(x_pos, y_pos)
+                        if d.device_has_not_been_processed_twice(): # process up to two corner_QR for each device(x_pos, y_pos)
                             d.extend_bbox() # 0 ms
                             d.crop_frame() # 5 ms
                             ret = d.detect_precise() # 50 ms

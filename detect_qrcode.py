@@ -122,21 +122,21 @@ class Detect():
             self.angle = theta - phi
 
     def get_marker_corner(self):
-        x, y = self.corner_qr_dict[self.device]["center"]
+        x, y = self.corner_qr_dict[self.device][0]["center"]
         width, height = self.marker_width/2, self.marker_width/2
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.marker_corner = [x - (c*width-s*height), y - (s*width+c*height)]
 
     def get_device_corner(self):
-        width = self.marker_width * self.x_pos
-        height = self.marker_width * self.y_pos
+        width = self.marker_gap * (self.device_width-1) + self.marker_width
+        height = self.marker_gap * (self.device_height-1) + self.marker_width
         x, y = self.marker_corner
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.device_corner = [x - (c*width-s*height), y - (s*width+c*height)]
 
     def get_device_bounding_box(self, ):
-        width = self.marker_width * self.device_width
-        height = self.marker_width * self.device_height
+        width = self.marker_gap * (self.device_width-1) + self.marker_width
+        height = self.marker_gap * (self.device_height-1) + self.marker_width
         x, y = self.device_corner
         c, s = np.cos(self.angle), np.sin(self.angle)
         self.device_bbox = np.array([

@@ -372,9 +372,9 @@ if __name__ == '__main__':
                                 d.detect_process_qr() # 50 ms
                                 if d.debug: d.draw_process_data_text() # 110 ms
                                 d.process_frame_for_saving() # 20 ms
-                                d.get_processed_frame_focus() # ?
-                                d.store_processed_frame_to_ram() # ?
-                                d.add_to_processed_devices()
+                                if d.mode == "camera": d.get_processed_frame_focus() # ?
+                                if d.mode == "camera": d.store_processed_frame_to_ram() # ?
+                                d.add_to_processed_devices() # ?
                                 continue # skip next line
                     if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 t2 = time.time()

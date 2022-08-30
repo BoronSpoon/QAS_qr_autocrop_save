@@ -70,7 +70,6 @@ class Detect():
         self.marker_gap = self.marker_width + self.marker_real_gap/self.marker_real_width
 
     def get_angle(self):
-        point1, point2 = self.bbox[2], self.bbox[3]
         self.angles = np.zeros(4)
         self.angles[0] = np.arctan2(self.bbox[2][1] - self.bbox[3][1], self.bbox[2][0] - self.bbox[3][0]) - np.pi*0/2
         self.angles[1] = np.arctan2(self.bbox[3][1] - self.bbox[0][1], self.bbox[3][0] - self.bbox[0][0]) - np.pi*1/2

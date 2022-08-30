@@ -473,7 +473,8 @@ class Detect():
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
     d.get_video_parameters() # debug
@@ -528,6 +529,6 @@ if __name__ == '__main__':
     cv2.destroyAllWindows()
     d.release_video_writer()
 
-    # 330 ms debug and video mode
-    # 100 ms video mode
+    # 470 ms debug and video mode
+    # 200 ms video mode
     # ? ms camera mode

@@ -255,14 +255,31 @@ class Detect():
         self.processed_frame = self.rotate_and_crop()
 
     def store_processed_frame_to_ram(self,): # store processed image to RAM for low latency instead of disk
-        if f"{self.cx}_{self.cy}_{self.ci}_{self.cj}" in self.buffer.keys():
-            focus = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus"]
-            if focus > self.processed_frame_focus : # if the newly obtained frame's focus is worse, keep the old frame in the buffer
+        if d.focus_stacking:
+            if f"{self.cx}_{self.cy}_{self.ci}_{self.cj}" in self.buffer.keys():
+                frame = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["frame"]
+                focus = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus"]
+                focus_map = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus_map"]
+                new_focus = max(self.processed_frame_focus, focus)
+                new_focus_map = np.max(self.processed_frame_focus_map, focus_map)
+                focus_stacked_processed_frame = np.where(self.processed_frame_focus_map > focus_map, self.processed_frame, frame) # use pixel value of best focused image
+                self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"] = {
+                    "filename": [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"],
+                    "frame": focus_stacked_processed_frame,
+                    "focus": new_focus,
+                    "focus_map": new_focus_map,
+                }
                 return None
+        else:
+            if f"{self.cx}_{self.cy}_{self.ci}_{self.cj}" in self.buffer.keys():
+                focus = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus"]
+                if focus > self.processed_frame_focus : # if the newly obtained frame's focus is worse, keep the old frame in the buffer
+                    return None
         self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"] = {
             "filename": [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"],
             "frame": self.processed_frame,
             "focus": self.processed_frame_focus,
+            "focus_map": self.processed_frame_focus_map,
         }
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
@@ -334,8 +351,8 @@ class Detect():
         self.writer.release()
 
     def get_processed_frame_focus(self, ):
-        focus_map = blur_detector.detectBlur(self.processed_image, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
-        self.processed_frame_focus = np.mean(focus_map)
+        self.processed_frame_focus_map = blur_detector.detectBlur(self.processed_image, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
+        self.processed_frame_focus = np.mean(self.processed_frame_focus_map)
 
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)

@@ -338,13 +338,13 @@ class Detect():
         }
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
-        for frame_dict in self.buffer.items():
+        for frame_dict in self.buffer.values():
             filename = frame_dict["filename"]
             frame = frame_dict["frame"]
             directory = os.path.join(self.savedir, *filename[:-1])
             path = os.path.join(self.savedir, *filename)
             if not os.path.isdir(directory):
-                os.mkdirs(directory)
+                os.makedirs(directory)
             cv2.imwrite(path, frame)
 
     def detect_monitor_wake(self, ): 

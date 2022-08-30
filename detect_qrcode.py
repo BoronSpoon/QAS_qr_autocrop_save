@@ -9,6 +9,15 @@ import blur_detector
 from textwrap import dedent
 cwd = os.path.dirname(__file__)
 
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
 class Detect():        
     red = (0,0,255)
     green = (0,255,0)
@@ -79,6 +88,8 @@ class Detect():
         self.marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
         self.device_height = self.corner_qr_dict[self.device][0]["device_width"]
         self.device_width = self.corner_qr_dict[self.device][0]["device_height"]
+        self.operator_name = self.corner_qr_dict[self.device][0]["operator_name"]
+        self.device_name = self.corner_qr_dict[self.device][0]["device_name"]
         self.cx = self.corner_qr_dict[self.device][0]["cx"]
         self.cy = self.corner_qr_dict[self.device][0]["cy"]
         self.ci = self.corner_qr_dict[self.device][0]["ci"]
@@ -399,6 +410,17 @@ class Detect():
         self.processed_frame_focus_map = blur_detector.detectBlur(grayscale_processed_frame, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
         self.processed_frame_focus = np.mean(self.processed_frame_focus_map)
 
+    def qr_is_duplicate(self, ):
+        device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
+        if device not in self.corner_qr_dict.keys():
+            return False
+        else:
+            x_pos0 = self.corner_qr_dict[device][0]["x_pos"]
+            x_pos1 = self.x_pos
+            y_pos0 = self.corner_qr_dict[device][0]["y_pos"]
+            y_pos1 = self.y_pos
+            return (x_pos0 == x_pos1) and (y_pos0 == y_pos1)
+
     def add_to_corner_qr_dict(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if device not in self.corner_qr_dict.keys():
@@ -411,6 +433,8 @@ class Detect():
                 "marker_real_gap": self.marker_real_gap,
                 "device_width": self.device_width,
                 "device_height": self.device_height,
+                "operator_name": self.operator_name,
+                "device_name": self.device_name,
                 "cx": self.cx,
                 "cy": self.cy,
                 "ci": self.ci,
@@ -426,6 +450,8 @@ class Detect():
                 "marker_real_gap": self.marker_real_gap,
                 "device_width": self.device_width,
                 "device_height": self.device_height,
+                "operator_name": self.operator_name,
+                "device_name": self.device_name,
                 "cx": self.cx,
                 "cy": self.cy,
                 "ci": self.ci,
@@ -464,13 +490,14 @@ if __name__ == '__main__':
                 if d.is_corner_qr(): # get bounding box for only corner QR code
                     d.decode_corner_qr() # 0 ms
                     if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
-                        d.extend_bbox() # 0 ms
-                        d.crop_frame() # 5 ms
-                        ret = d.detect_precise() # 50 ms
-                        if ret:
-                            if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-                            d.shift_bounding_box_to_image_coordinate() # 0 ms
-                            d.add_to_corner_qr_dict()
+                        if not d.qr_is_duplicate(): # if qr is not duplicate
+                            d.extend_bbox() # 0 ms
+                            d.crop_frame() # 5 ms
+                            ret = d.detect_precise() # 50 ms
+                            if ret:
+                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+                                d.shift_bounding_box_to_image_coordinate() # 0 ms
+                                d.add_to_corner_qr_dict()
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
                 d.get_angle() # 0 ms
@@ -480,11 +507,11 @@ if __name__ == '__main__':
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_data_text() # 110 ms
-                #d.detect_process_qr() # 50 ms
-                #if d.debug: d.draw_process_data_text() # 110 ms
+                d.detect_process_qr() # 50 ms
+                if d.debug: d.draw_process_data_text() # 110 ms
                 d.process_frame_for_saving() # 20 ms
-                #d.get_processed_frame_focus() # ?
-                #d.store_processed_frame_to_ram() # ?
+                d.get_processed_frame_focus() # ?
+                d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

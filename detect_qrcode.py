@@ -16,8 +16,9 @@ class Detect():
     white = (255,255,255)
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
-    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera"):
+    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera", wake_threshold=20):
         self.mode = mode
+        self.wake_threshold = wake_threshold
         self.debug = debug # debug mode will write detection result to frame and display it (slow)
         self.savedir = savedir # folder to save the file
         self.buffer = {}
@@ -274,16 +275,16 @@ class Detect():
             cv2.imwrite(path, frame)
 
     def detect_monitor_wake(self, ): 
-        # read frame and take max value: if it is not 0, the monitor is awake
+        # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
         while True:
-            if np.max(self.original_frame) != 0:
+            if np.mean(self.original_frame) > self.wake_threshold:
                 self.monitor_is_awake = True
                 break
             time.sleep(10)
     
     def detect_monitor_sleep(self, ):
-        # read frame and take max value: if it is not 0, the monitor is awake
-        if np.max(self.original_frame) == 0:
+        # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
+        if np.mean(self.original_frame) < self.wake_threshold:
             self.monitor_is_awake = False
         pass
 
@@ -332,11 +333,10 @@ if __name__ == '__main__':
     d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="video", debug=True)
     cwd = os.path.dirname(__file__)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
-    if d.mode == "camera": d.prepare_capture(0)
     if d.mode == "video": d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi")) # debug
     d.get_video_parameters() # debug
-    #d.prepare_capture(0)
-    #d.set_camera_parameters(width=1920, height=1080, fps=60)
+    if d.mode == "camera": d.prepare_capture(0)
+    if d.mode == "camera": d.set_camera_parameters(width=1920, height=1080, fps=60)
     while d.frames_available:
         if d.mode == "video": d.read_video_frame()
         d.detect_monitor_wake()
@@ -344,9 +344,9 @@ if __name__ == '__main__':
             d.detect_monitor_sleep()
             # Load image.
             if d.mode == "video": d.read_video_frame()
+            if d.mode == "camera": d.read_camera_frame()
+            if d.mode == "image": d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
             try:
-                if d.mode == "camera": d.read_camera_frame()
-                if d.mode == "image": d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
                 d.preprocess()
                 t1 = time.time()
                 d.detect_rough() # 35 ms

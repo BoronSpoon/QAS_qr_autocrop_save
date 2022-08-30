@@ -16,7 +16,7 @@ class Detect():
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
     def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False):
-        self.debug = debug
+        self.debug = debug # debug mode will write detection result to frame and display it (slow)
         self.savedir = savedir # folder to save the file
         self.buffer = []
         self.frame_count = 0
@@ -369,4 +369,4 @@ if __name__ == '__main__':
     cv2.destroyAllWindows()
     d.release_video_writer()
 
-    # 334ms
+    # 400 ms

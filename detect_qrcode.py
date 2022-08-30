@@ -37,6 +37,7 @@ class Detect():
         )
         # for qrcode bounding box drawing on cropped image
         self.detector2 = pb.FactoryFiducial(np.uint8).qrcode()
+        self.corner_qr_dict = {}
 
     def draw_bounding_box(self, bbox, color=(0,0,255)):
         bbox = bbox.astype(int)
@@ -196,18 +197,7 @@ class Detect():
 
     def detect_precise(self, ):
         self.detector2.detect(self.cropped_framepb)
-        return len(d.detector2.detections) > 0
-
-    def reset_processed_devices(self,):
-        self.processed_devices = []
-
-    def device_has_not_been_processed(self, ):
-        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        return key_ not in self.processed_devices
-
-    def add_to_processed_devices(self,):
-        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        self.processed_devices.append(key_)
+        return len(self.detector2.detections) > 0
 
     def shrink_original_frame(self,):
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])
@@ -356,6 +346,21 @@ class Detect():
         self.processed_frame_focus_map = blur_detector.detectBlur(self.processed_image, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
         self.processed_frame_focus = np.mean(self.processed_frame_focus_map)
 
+    def add_to_corner_qr_dict(self, ):
+        device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
+        if device not in self.corner_qr_dict.keys():
+            self.corner_qr_dict[device] = [self.x_pos, self.y_pos, self.device_width, self.device_height, self.marker_real_width, self.marker_real_gap, self.cx, self.cy, self.ci, self.cj, self.operator_name, self.device_name]
+        else:
+            self.corner_qr_dict[device].append([self.x_pos, self.y_pos, self.device_width, self.device_height, self.marker_real_width, self.marker_real_gap, self.cx, self.cy, self.ci, self.cj, self.operator_name, self.device_name])
+
+    def limit_number_of_processed_corner_qr(self, ):
+        for device in self.corner_qr_dict.keys():
+            if len(self.corner_qr_dict[device]) > 2: # limit to 2 corner qrs
+                xy_pos = np.array(self.corner_qr_dict[device][:2]) # just x_pos and y_pos
+                dist = np.sqrt(np.sum(xy_pos**2, axis=1))
+                argmin, argmax = np.argmin(dist), np.argmax(dist)
+                self.corner_qr_dict[device] = [self.corner_qr_dict[device][i] for i in [argmin, argmax]]
+
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
@@ -378,33 +383,33 @@ if __name__ == '__main__':
                 d.preprocess()
                 t1 = time.time()
                 d.detect_rough() # 35 ms
-                d.reset_processed_devices() # 2 ms
                 for d.result, d.bbox in zip(d.results, d.bboxes):
                     if d.is_corner_qr(): # get bounding box for only corner QR code
                         d.decode_corner_qr() # 0 ms
-                        if d.device_has_not_been_processed(): # process up to one corner_QR for each device(x_pos, y_pos)
-                            d.extend_bbox() # 0 ms
-                            d.crop_frame() # 5 ms
-                            ret = d.detect_precise() # 50 ms
-                            if ret:
-                                d.shift_bounding_box_to_image_coordinate() # 0 ms
-                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-                                d.get_marker_width() # 0 ms
-                                d.get_angle() # 0 ms
-                                d.get_marker_corner() # 0 ms
-                                d.get_device_corner() # 0 ms
-                                if d.debug: d.draw_corner_circles() # 0 ms
-                                d.get_device_bounding_box() # 0 ms
-                                if d.debug: d.draw_device_bounding_box() # 0 ms
-                                if d.debug: d.draw_device_data_text() # 110 ms
-                                d.detect_process_qr() # 50 ms
-                                if d.debug: d.draw_process_data_text() # 110 ms
-                                d.process_frame_for_saving() # 20 ms
-                                d.get_processed_frame_focus() # ?
-                                d.store_processed_frame_to_ram() # ?
-                                d.add_to_processed_devices() # ?
-                                continue # skip next line
-                    if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
+                        d.add_to_corner_qr_dict()
+                d.limit_number_of_processed_corner_qr()
+                for device in d.corner_qr_dict.keys():
+                    d.extend_bbox() # 0 ms
+                    d.crop_frame() # 5 ms
+                    ret = d.detect_precise() # 50 ms
+                    if ret:
+                        d.shift_bounding_box_to_image_coordinate() # 0 ms
+                        if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+                        d.get_marker_width() # 0 ms
+                        d.get_angle() # 0 ms
+                        d.get_marker_corner() # 0 ms
+                        d.get_device_corner() # 0 ms
+                        if d.debug: d.draw_corner_circles() # 0 ms
+                        d.get_device_bounding_box() # 0 ms
+                        if d.debug: d.draw_device_bounding_box() # 0 ms
+                        if d.debug: d.draw_device_data_text() # 110 ms
+                        d.detect_process_qr() # 50 ms
+                        if d.debug: d.draw_process_data_text() # 110 ms
+                        d.process_frame_for_saving() # 20 ms
+                        d.get_processed_frame_focus() # ?
+                        d.store_processed_frame_to_ram() # ?
+                        continue # skip next line
+                if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 t2 = time.time()
                 if d.mode == "video" and d.debug: d.shrink_original_frame()
                 if d.debug: d.imshow_shrunk_original_frame() # 20 ms

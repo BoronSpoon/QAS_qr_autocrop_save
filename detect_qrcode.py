@@ -75,32 +75,38 @@ class Detect():
         return distance
 
     def get_marker_width(self):
+        self.marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
+        self.marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
+        self.device_height = self.corner_qr_dict[self.device][0]["device_width"]
+        self.device_width = self.corner_qr_dict[self.device][0]["device_height"]
+        self.cx = self.corner_qr_dict[self.device][0]["cx"]
+        self.cy = self.corner_qr_dict[self.device][0]["cy"]
+        self.ci = self.corner_qr_dict[self.device][0]["ci"]
+        self.cj = self.corner_qr_dict[self.device][0]["cj"]
         if d.corner_qr_count_for_device() == 1:
             bbox = self.corner_qr_dict[self.device][0]["bbox"]
-            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
-            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
             self.marker_width = self.get_mean_distance(np.array([
                 [bbox[0][0]-bbox[1][0], bbox[0][1]-bbox[1][1]],
                 [bbox[1][0]-bbox[2][0], bbox[1][1]-bbox[2][1]],
                 [bbox[2][0]-bbox[3][0], bbox[2][1]-bbox[3][1]],
                 [bbox[3][0]-bbox[0][0], bbox[3][1]-bbox[0][1]],
             ]))
-            self.marker_gap = self.marker_width*marker_real_gap/marker_real_width
+            self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
         elif d.corner_qr_count_for_device() == 2:
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
-            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
-            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
             dx_pos = x_pos[0] - x_pos[1]
             dy_pos = y_pos[0] - y_pos[1]
-            distance = self.get_mean_distance(np.array([[dx_pos, dy_pos]]))
+            distance = self.get_mean_distance(np.array([
+                [centers[0][0]-centers[1][0], centers[0][1]-centers[1][1]]
+            ]))
             self.marker_width = np.sqrt(distance/(
             ((
-                (abs(dx_pos)-1)*marker_real_gap/marker_real_width + 1)*(
-                (abs(dy_pos)-1)*marker_real_gap/marker_real_width + 1)
+                (abs(dx_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)*(
+                (abs(dy_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)
             )))
-            self.marker_gap = self.marker_width*marker_real_gap/marker_real_width
+            self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
 
     def get_angle(self):
         if d.corner_qr_count_for_device() == 1:
@@ -117,12 +123,10 @@ class Detect():
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
-            marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
-            marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
             dx_pos = x_pos[0] - x_pos[1]
             dy_pos = y_pos[0] - y_pos[1]
-            dx = (dx_pos-1)*marker_real_gap/marker_real_width + 1
-            dy = (dy_pos-1)*marker_real_gap/marker_real_width + 1
+            dx = (dx_pos-1)*self.marker_real_gap/self.marker_real_width + 1
+            dy = (dy_pos-1)*self.marker_real_gap/self.marker_real_width + 1
             phi = np.arctan2(dy, dx)
             theta = np.arctan2(centers[1][1] - centers[0][1], centers[1][0] - centers[0][0])
             self.angle = theta - phi
@@ -391,7 +395,8 @@ class Detect():
         self.writer.release()
 
     def get_processed_frame_focus(self, ):
-        self.processed_frame_focus_map = blur_detector.detectBlur(self.processed_image, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
+        grayscale_processed_frame = cv2.cvtColor(self.processed_frame, cv2.COLOR_BGR2GRAY)
+        self.processed_frame_focus_map = blur_detector.detectBlur(grayscale_processed_frame, downsampling_factor=4, num_scales=4, scale_start=2, num_iterations_RF_filter=3)
         self.processed_frame_focus = np.mean(self.processed_frame_focus_map)
 
     def add_to_corner_qr_dict(self, ):
@@ -404,6 +409,12 @@ class Detect():
                 "bbox_center": self.bbox_center,
                 "marker_real_width": self.marker_real_width,
                 "marker_real_gap": self.marker_real_gap,
+                "device_width": self.device_width,
+                "device_height": self.device_height,
+                "cx": self.cx,
+                "cy": self.cy,
+                "ci": self.ci,
+                "cj": self.cj,
             }]
         else:
             self.corner_qr_dict[device].append({
@@ -413,6 +424,12 @@ class Detect():
                 "bbox_center": self.bbox_center,
                 "marker_real_width": self.marker_real_width,
                 "marker_real_gap": self.marker_real_gap,
+                "device_width": self.device_width,
+                "device_height": self.device_height,
+                "cx": self.cx,
+                "cy": self.cy,
+                "ci": self.ci,
+                "cj": self.cj,
             })
 
     def corner_qr_count_for_device(self, ):
@@ -463,11 +480,11 @@ if __name__ == '__main__':
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_data_text() # 110 ms
-                d.detect_process_qr() # 50 ms
-                if d.debug: d.draw_process_data_text() # 110 ms
+                #d.detect_process_qr() # 50 ms
+                #if d.debug: d.draw_process_data_text() # 110 ms
                 d.process_frame_for_saving() # 20 ms
-                d.get_processed_frame_focus() # ?
-                d.store_processed_frame_to_ram() # ?
+                #d.get_processed_frame_focus() # ?
+                #d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

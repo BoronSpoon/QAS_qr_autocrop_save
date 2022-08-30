@@ -199,22 +199,15 @@ class Detect():
         return len(d.detector2.detections) > 0
 
     def reset_processed_devices(self,):
-        self.processed_devices = {}
-
-    def device_has_not_been_processed_twice(self, ):
-        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        return key_ not in self.processed_devices.keys() or self.processed_devices[key_] == 1
+        self.processed_devices = []
 
     def device_has_not_been_processed(self, ):
         key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        return key_ not in self.processed_devices.keys()
+        return key_ not in self.processed_devices
 
     def add_to_processed_devices(self,):
         key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
-        if key_ not in self.processed_devices.keys():
-            self.processed_devices[key_] = 0
-        else:
-            self.processed_devices[key_] += 1
+        self.processed_devices.append(key_)
 
     def shrink_original_frame(self,):
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])

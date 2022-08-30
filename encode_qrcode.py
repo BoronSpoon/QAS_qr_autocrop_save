@@ -98,7 +98,7 @@ def encode_corner_qr(x_pos=0, y_pos=0, device_width=10, device_height=5, marker_
     assert len(str(operator_name)) <= 8
     if operator_name == "": # if operator is empty, fill with placeholder
         operator_name = "john doe"
-    string += operator_name
+    string += operator_name.ljust(8)
     # sample name (14 letters: TY_test_condition)
     # alphanumeric*14
     assert len(sample_name) <= 14
@@ -126,10 +126,10 @@ def encode_process_qr(process_count=0, process_name=""):
 
 if __name__ == "__main__":
     from decode_qrcode import *
-    result0 = encode_corner_qr(x_pos=0, y_pos=0, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, date=220826, sample_name="qr encoding test")
-    result1 = encode_corner_qr(x_pos=9, y_pos=0, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, date=220826, sample_name="qr encoding test")
-    result2 = encode_corner_qr(x_pos=0, y_pos=4, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, date=220826, sample_name="qr encoding test")
-    result3 = encode_corner_qr(x_pos=9, y_pos=4, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, date=220826, sample_name="qr encoding test")
+    result0 = encode_corner_qr(x_pos=0, y_pos=0, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test")
+    result1 = encode_corner_qr(x_pos=9, y_pos=0, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test")
+    result2 = encode_corner_qr(x_pos=0, y_pos=4, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test")
+    result3 = encode_corner_qr(x_pos=9, y_pos=4, device_width=10, device_height=5, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test")
     result4 = encode_process_qr(process_count=0, process_name="process 0")
     result5 = encode_process_qr(process_count=1, process_name="process 1")
     result6 = encode_process_qr(process_count=2, process_name="process 2")

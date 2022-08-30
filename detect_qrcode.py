@@ -426,45 +426,40 @@ if __name__ == '__main__':
             if d.mode == "video": d.read_video_frame()
             if d.mode == "camera": d.read_camera_frame()
             if d.mode == "image": d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
-            try:
-                d.preprocess()
-                t1 = time.time()
-                d.detect_rough() # 35 ms
-                for d.result, d.bbox in zip(d.results, d.bboxes):
-                    if d.is_corner_qr(): # get bounding box for only corner QR code
-                        d.decode_corner_qr() # 0 ms
-                        if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
-                            d.extend_bbox() # 0 ms
-                            d.crop_frame() # 5 ms
-                            ret = d.detect_precise() # 50 ms
-                            if ret:
-                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-                                d.shift_bounding_box_to_image_coordinate() # 0 ms
-                                d.add_to_corner_qr_dict()
-                for d.device in d.corner_qr_dict.keys():
-                    d.get_marker_width() # 0 ms
-                    d.get_angle() # 0 ms
-                    d.get_marker_corner() # 0 ms
-                    d.get_device_corner() # 0 ms
-                    if d.debug: d.draw_corner_circles() # 0 ms
-                    d.get_device_bounding_box() # 0 ms
-                    if d.debug: d.draw_device_bounding_box() # 0 ms
-                    if d.debug: d.draw_device_data_text() # 110 ms
-                    d.detect_process_qr() # 50 ms
-                    if d.debug: d.draw_process_data_text() # 110 ms
-                    d.process_frame_for_saving() # 20 ms
-                    d.get_processed_frame_focus() # ?
-                    d.store_processed_frame_to_ram() # ?
-                    continue # skip next line
-                if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
-                t2 = time.time()
-                if d.mode == "video" and d.debug: d.shrink_original_frame()
-                if d.debug: d.imshow_shrunk_original_frame() # 20 ms
-                if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
-                print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
-            except Exception as e:
-                if d.mode == "video": d.release_video_writer()
-                print(e)
+            d.preprocess()
+            t1 = time.time()
+            d.detect_rough() # 35 ms
+            for d.result, d.bbox in zip(d.results, d.bboxes):
+                if d.is_corner_qr(): # get bounding box for only corner QR code
+                    d.decode_corner_qr() # 0 ms
+                    if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
+                        d.extend_bbox() # 0 ms
+                        d.crop_frame() # 5 ms
+                        ret = d.detect_precise() # 50 ms
+                        if ret:
+                            if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+                            d.shift_bounding_box_to_image_coordinate() # 0 ms
+                            d.add_to_corner_qr_dict()
+            for d.device in d.corner_qr_dict.keys():
+                d.get_marker_width() # 0 ms
+                d.get_angle() # 0 ms
+                d.get_marker_corner() # 0 ms
+                d.get_device_corner() # 0 ms
+                if d.debug: d.draw_corner_circles() # 0 ms
+                d.get_device_bounding_box() # 0 ms
+                if d.debug: d.draw_device_bounding_box() # 0 ms
+                if d.debug: d.draw_device_data_text() # 110 ms
+                d.detect_process_qr() # 50 ms
+                if d.debug: d.draw_process_data_text() # 110 ms
+                d.process_frame_for_saving() # 20 ms
+                d.get_processed_frame_focus() # ?
+                d.store_processed_frame_to_ram() # ?
+            if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
+            t2 = time.time()
+            if d.mode == "video" and d.debug: d.shrink_original_frame()
+            if d.debug: d.imshow_shrunk_original_frame() # 20 ms
+            if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
+            print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
         d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()
     d.release_video_writer()

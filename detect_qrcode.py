@@ -46,7 +46,6 @@ class Detect():
         )
         # for qrcode bounding box drawing on cropped image
         self.detector2 = pb.FactoryFiducial(np.uint8).qrcode()
-        self.corner_qr_dict = {}
 
     def draw_bounding_box(self, bbox, color=(0,0,255)):
         bbox = bbox.astype(int)
@@ -55,6 +54,7 @@ class Detect():
             cv2.line(self.original_frame, (bbox[i][0], bbox[i][1]), (bbox[(i+1)%n][0], bbox[(i+1)%n][1]), color, 3)
 
     def draw_precise_marker_bounding_box(self):
+        print(self.bbox)
         self.draw_bounding_box(self.bbox, color=self.red)
 
     def draw_rough_marker_bounding_box(self):
@@ -421,6 +421,9 @@ class Detect():
             y_pos1 = self.y_pos
             return (x_pos0 == x_pos1) and (y_pos0 == y_pos1)
 
+    def clear_corner_qr_dict(self,):
+        self.corner_qr_dict = {}
+
     def add_to_corner_qr_dict(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if device not in self.corner_qr_dict.keys():
@@ -486,17 +489,19 @@ if __name__ == '__main__':
             d.preprocess()
             t1 = time.time()
             d.detect_rough() # 35 ms
+            d.clear_corner_qr_dict()
             for d.result, d.bbox in zip(d.results, d.bboxes):
                 if d.is_corner_qr(): # get bounding box for only corner QR code
                     d.decode_corner_qr() # 0 ms
-                    if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
+                    #if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
+                    if d.corner_qr_count_for_device() < 1: # limit to 1 corner qrs
                         if not d.qr_is_duplicate(): # if qr is not duplicate
                             d.extend_bbox() # 0 ms
                             d.crop_frame() # 5 ms
                             ret = d.detect_precise() # 50 ms
                             if ret:
-                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
                                 d.shift_bounding_box_to_image_coordinate() # 0 ms
+                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
                                 d.add_to_corner_qr_dict()
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
@@ -507,11 +512,11 @@ if __name__ == '__main__':
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_data_text() # 110 ms
-                d.detect_process_qr() # 50 ms
-                if d.debug: d.draw_process_data_text() # 110 ms
-                d.process_frame_for_saving() # 20 ms
-                d.get_processed_frame_focus() # ?
-                d.store_processed_frame_to_ram() # ?
+                #d.detect_process_qr() # 50 ms
+                #if d.debug: d.draw_process_data_text() # 110 ms
+                #d.process_frame_for_saving() # 20 ms
+                #d.get_processed_frame_focus() # ?
+                #d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

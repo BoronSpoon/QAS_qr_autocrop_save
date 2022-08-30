@@ -527,7 +527,7 @@ if __name__ == '__main__':
             print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
         d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()
-    d.release_video_writer()
+    if d.mode == "video" and d.debug: d.release_video_writer()
 
     # 470 ms debug and video mode
     # 200 ms video mode

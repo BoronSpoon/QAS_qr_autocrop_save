@@ -54,7 +54,6 @@ class Detect():
             cv2.line(self.original_frame, (bbox[i][0], bbox[i][1]), (bbox[(i+1)%n][0], bbox[(i+1)%n][1]), color, 3)
 
     def draw_precise_marker_bounding_box(self):
-        print(self.bbox)
         self.draw_bounding_box(self.bbox, color=self.red)
 
     def draw_rough_marker_bounding_box(self):
@@ -86,8 +85,8 @@ class Detect():
     def get_marker_width(self):
         self.marker_real_width = self.corner_qr_dict[self.device][0]["marker_real_width"]
         self.marker_real_gap = self.corner_qr_dict[self.device][0]["marker_real_gap"]
-        self.device_height = self.corner_qr_dict[self.device][0]["device_width"]
-        self.device_width = self.corner_qr_dict[self.device][0]["device_height"]
+        self.device_width = self.corner_qr_dict[self.device][0]["device_width"]
+        self.device_height = self.corner_qr_dict[self.device][0]["device_height"]
         self.operator_name = self.corner_qr_dict[self.device][0]["operator_name"]
         self.device_name = self.corner_qr_dict[self.device][0]["device_name"]
         self.cx = self.corner_qr_dict[self.device][0]["cx"]
@@ -146,7 +145,7 @@ class Detect():
         x, y = self.corner_qr_dict[self.device][0]["bbox_center"]
         width, height = self.marker_width/2, self.marker_width/2
         c, s = np.cos(self.angle), np.sin(self.angle)
-        self.marker_corner = [x - (c*width-s*height), y - (s*width+c*height)]
+        self.marker_corner = [x + (c*width-s*height), y + (s*width+c*height)]
 
     def get_device_corner(self):
         width = self.marker_gap * (self.device_width-1) + self.marker_width

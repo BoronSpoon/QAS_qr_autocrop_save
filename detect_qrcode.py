@@ -108,14 +108,13 @@ class Detect():
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
             dx_pos = x_pos[0] - x_pos[1]
             dy_pos = y_pos[0] - y_pos[1]
+            dx = (abs(dx_pos)-1)*self.marker_real_gap/self.marker_real_width + 1 # in multiples of marker_width, gap
+            dy = (abs(dy_pos)-1)*self.marker_real_gap/self.marker_real_width + 1
+            dd = np.sqrt(dx**2+dy**2)
             distance = self.get_mean_distance(np.array([
                 [centers[0][0]-centers[1][0], centers[0][1]-centers[1][1]]
             ]))
-            self.marker_width = np.sqrt(distance/(
-            ((
-                (abs(dx_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)*(
-                (abs(dy_pos)-1)*self.marker_real_gap/self.marker_real_width + 1)
-            )))
+            self.marker_width = distance/dd
             self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
 
     def get_angle(self):
@@ -494,8 +493,7 @@ if __name__ == '__main__':
             for d.result, d.bbox in zip(d.results, d.bboxes):
                 if d.is_corner_qr(): # get bounding box for only corner QR code
                     d.decode_corner_qr() # 0 ms
-                    #if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
-                    if d.corner_qr_count_for_device() < 1: # limit to 1 corner qrs
+                    if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
                         if not d.qr_is_duplicate(): # if qr is not duplicate
                             d.extend_bbox() # 0 ms
                             d.crop_frame() # 5 ms
@@ -515,9 +513,9 @@ if __name__ == '__main__':
                 if d.debug: d.draw_device_data_text() # 110 ms
                 d.detect_process_qr() # 50 ms
                 if d.debug: d.draw_process_data_text() # 110 ms
-                d.process_frame_for_saving() # 20 ms
-                # d.get_processed_frame_focus() # ?
-                d.store_processed_frame_to_ram() # ?
+                #d.process_frame_for_saving() # 20 ms
+                #d.get_processed_frame_focus() # ?
+                #d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.mode == "video" and d.debug: d.shrink_original_frame()

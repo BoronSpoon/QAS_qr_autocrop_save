@@ -338,7 +338,7 @@ class Detect():
         }
 
     def write_processed_frame_to_disk(self,): # write processed image in RAM to disk
-        for frame_dict in self.buffer:
+        for frame_dict in self.buffer.items():
             filename = frame_dict["filename"]
             frame = frame_dict["frame"]
             directory = os.path.join(self.savedir, *filename[:-1])

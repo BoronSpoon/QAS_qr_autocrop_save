@@ -205,6 +205,10 @@ class Detect():
         key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         return key_ not in self.processed_devices.keys() or self.processed_devices[key_] == 1
 
+    def device_has_not_been_processed(self, ):
+        key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
+        return key_ not in self.processed_devices.keys()
+
     def add_to_processed_devices(self,):
         key_ = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if key_ not in self.processed_devices.keys():
@@ -385,7 +389,7 @@ if __name__ == '__main__':
                 for d.result, d.bbox in zip(d.results, d.bboxes):
                     if d.is_corner_qr(): # get bounding box for only corner QR code
                         d.decode_corner_qr() # 0 ms
-                        if d.device_has_not_been_processed_twice(): # process up to two corner_QR for each device(x_pos, y_pos)
+                        if d.device_has_not_been_processed(): # process up to one corner_QR for each device(x_pos, y_pos)
                             d.extend_bbox() # 0 ms
                             d.crop_frame() # 5 ms
                             ret = d.detect_precise() # 50 ms

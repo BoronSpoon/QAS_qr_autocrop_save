@@ -71,7 +71,14 @@ class Detect():
 
     def get_angle(self):
         point1, point2 = self.bbox[2], self.bbox[3]
-        self.angle = np.arctan2(point1[1] - point2[1], point1[0] - point2[0])
+        self.angles = np.zeros(4)
+        self.angles[0] = np.arctan2(self.bbox[2][1] - self.bbox[3][1], self.bbox[2][0] - self.bbox[3][0]) - np.pi*0/2
+        self.angles[1] = np.arctan2(self.bbox[3][1] - self.bbox[0][1], self.bbox[3][0] - self.bbox[0][0]) - np.pi*1/2
+        self.angles[2] = np.arctan2(self.bbox[0][1] - self.bbox[1][1], self.bbox[0][0] - self.bbox[1][0]) - np.pi*2/2
+        self.angles[3] = np.arctan2(self.bbox[1][1] - self.bbox[2][1], self.bbox[1][0] - self.bbox[2][0]) - np.pi*3/2
+        self.angles = np.where(self.angles < np.pi, self.angles+np.pi*2, self.angles)
+        self.angles = np.where(self.angles < np.pi, self.angles+np.pi*2, self.angles)
+        self.angle = np.mean(self.angles)
 
     def get_marker_corner(self):
         self.marker_corner = self.bbox[2]

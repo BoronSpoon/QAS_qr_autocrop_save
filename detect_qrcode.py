@@ -15,7 +15,8 @@ class Detect():
     white = (255,255,255)
     black = (0,0,0)
     cwd = os.path.dirname(__file__)
-    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False):
+    def __init__(self, savedir, width=1920, height=1080, max_processes=10, debug=False, mode="camera"):
+        self.mode = mode
         self.debug = debug # debug mode will write detection result to frame and display it (slow)
         self.savedir = savedir # folder to save the file
         self.buffer = []
@@ -197,9 +198,10 @@ class Detect():
     def add_to_processed_devices(self,):
         self.processed_devices.append([self.cx, self.cy, self.ci, self.cj, self.device_name])
 
-    def imshow_shrunk_original_frame(self,):
+    def shrink_original_frame(self,):
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])
-        #cv2.imshow("original_frame", cv2.resize(self.original_frame, (int(self.original_frame.shape[1]/2), int(self.original_frame.shape[0]/2))))
+
+    def imshow_shrunk_original_frame(self,):
         cv2.imshow("frame", cv2.resize(self.combined_frame, (int(self.combined_frame.shape[1]/3), int(self.combined_frame.shape[0]/3))))
         cv2.waitKey(1)
 
@@ -310,23 +312,25 @@ class Detect():
         self.writer.release()
 
 if __name__ == '__main__':
-    d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"))
+    #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
+    d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="video")
     cwd = os.path.dirname(__file__)
-    d.prepare_capture(os.path.join(cwd, "videos", "1.avi"))
-    d.prepare_video_writer(os.path.join(cwd, "videos", "1_result.avi")) # debug
+    if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
+    if d.mode == "camera": d.prepare_capture(0)
+    if d.mode == "video": d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi")) # debug
     d.get_video_parameters() # debug
     #d.prepare_capture(0)
     #d.set_camera_parameters(width=1920, height=1080, fps=60)
     while d.frames_available:
-        d.read_video_frame()
+        if d.mode == "video": d.read_video_frame()
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
             d.detect_monitor_sleep()
             # Load image.
-            d.read_video_frame()
+            if d.mode == "video": d.read_video_frame()
             try:
-                #d.read_camera_frame()
-                #d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
+                if d.mode == "camera": d.read_camera_frame()
+                if d.mode == "image": d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
                 d.preprocess()
                 t1 = time.time()
                 d.detect_rough() # 35 ms
@@ -356,11 +360,12 @@ if __name__ == '__main__':
                                 continue # skip next line
                     if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 t2 = time.time()
+                if d.mode == "video": d.shrink_original_frame()
                 if d.debug: d.imshow_shrunk_original_frame() # 20 ms
-                if d.debug: d.write_combined_frame_to_video_writer() # 5 ms
+                if d.mode == "video": d.write_combined_frame_to_video_writer() # 5 ms
                 print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
             except Exception as e:
-                d.release_video_writer()
+                if d.mode == "camera": d.release_video_writer()
                 print(e)
         #d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
         #while True:

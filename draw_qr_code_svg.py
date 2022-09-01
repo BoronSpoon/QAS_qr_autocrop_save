@@ -5,11 +5,11 @@ import os
 import qrcode.image.svg
 from qrcode.image.styles.moduledrawers import SquareModuleDrawer, CircleModuleDrawer
 
-def draw_and_save_qrcode(version=4, box_size=4, string="", path=None):
+def draw_and_save_qrcode(version=4, string="", path=None):
     qr = qrcode.QRCode(
         version=version,
         error_correction=qrcode.constants.ERROR_CORRECT_Q,
-        box_size=box_size,
+        box_size=10, 
         border=0,
         image_factory=qrcode.image.svg.SvgPathImage,
     )
@@ -22,4 +22,4 @@ def draw_and_save_qrcode(version=4, box_size=4, string="", path=None):
 
 if __name__ == "__main__":
     cwd = os.path.dirname(__file__)
-    draw_and_save_qrcode(version=4, box_size=4, string="test123", path=os.path.join(cwd, "test", "1.svg"))
+    draw_and_save_qrcode(version=4, string="test123", path=os.path.join(cwd, "test", "1.svg"))

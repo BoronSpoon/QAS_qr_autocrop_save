@@ -33,12 +33,20 @@ def draw_qr_code_in_cad(path, shape="square", x0=0, y0=0, width=1, gap=0):
             end = [np.real(line.end), np.imag(line.end)]
             polyline_points.append(start)
             if end == polyline_points[0]: # if polyline is closed, draw polyline and empty polyline list
-                x, y = np.mean(np.array(polyline_points), axis=0)
+                cx, cy = np.mean(np.array(polyline_points), axis=0)
                 # invert y and move bottom left to (x0, y0)
                 if shape == "square":
-                    square(x0+x*(width+gap), y0+(total_width-y)*(width+gap), width, width, xy0_position="center", layer=layer)
+                    x, y = x0+cx*(width+gap), y0+(total_width-cy)*(width+gap)
+                    square(x, y, width, width, xy0_position="center", layer=layer)
                 elif shape == "circle":
-                    circle(x0+x*(width+gap), y0+(total_width-y)*(width+gap), width, xy0_position="center", layer=layer)
+                    x, y = x0+cx*(width+gap), y0+(total_width-cy)*(width+gap)
+                    x_count, y_count = cx, total_width-cy # bottom left is 0,0
+                    # aliment markers should be square even for circular qr code
+                    if (x_count < 7 and y_count < 7) or (x_count < 7 and y_count > total_width-7) or (x_count > total_width-7 and y_count > total_width-7) or (total_width-9 < x_count < total_width-4 and 4 < y_count < 9): # the alignment marker is 1+1+3+1+1=7 blocks wide
+                        square(x, y, width, width, xy0_position="center", layer=layer) # draw square alignment marker
+                    else:
+                        circle(x, y, width, xy0_position="center", layer=layer)
+                    
                 polyline_points = []
         elif type(line) == svgpathtools.path.Curve:
             pass

@@ -23,7 +23,8 @@ def draw_qr_code_in_cad(path):
             pass
 
 if __name__ == "__main__":
+    cwd = os.path.dirname(__file__)
     # square
-    draw_qr_code_in_cad("test/1.svg")
+    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"))
     # circular
-    draw_qr_code_in_cad("test/2.svg")
+    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"))

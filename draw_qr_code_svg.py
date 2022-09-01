@@ -15,7 +15,7 @@ def draw_and_save_qrcode(version=4, box_size=4, string="", path=None):
     )
     qr.add_data(string)
     qr.make(fit=True)
-    img = str(qr.make_image(fill_color=(255,255,255), back_color=(0,0,0)).to_string)
+    img = str(qr.make_image(fill_color=(255,255,255), back_color=(0,0,0)).to_string())
     with open(path, "w") as f:
         img = str.replace(img, "mm", "") # remove units
         f.write(img[2:-1]) # remove b''

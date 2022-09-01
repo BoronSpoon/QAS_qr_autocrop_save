@@ -43,7 +43,7 @@ def draw_qr_code_in_cad(path, shape="square", x0=0, y0=0, width=1, gap=0):
                     x_count, y_count = cx, total_width-cy # bottom left is 0,0
                     # aliment markers should be square even for circular qr code
                     if (x_count < 7 and y_count < 7) or (x_count < 7 and y_count > total_width-7) or (x_count > total_width-7 and y_count > total_width-7) or (total_width-9 < x_count < total_width-4 and 4 < y_count < 9): # the alignment marker is 1+1+3+1+1=7 blocks wide
-                        square(x, y, width, width, xy0_position="center", layer=layer) # draw square alignment marker
+                        square(x, y, (width+gap), (width+gap), xy0_position="center", layer=layer) # draw square alignment marker
                     else:
                         circle(x, y, width, xy0_position="center", layer=layer)
                     

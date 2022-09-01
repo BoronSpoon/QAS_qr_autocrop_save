@@ -4,7 +4,7 @@ cwd = os.path.dirname(__file__)
 sys.path.append(os.path.join(cwd, "..", "autocad","autocadshapes"))
 from svgpathtools import svg2paths, wsvg
 import svgpathtools
-from basic_shapes import square
+from basic_shapes import square, circle
 layer = "Ag%0_LPC_"
 
 def get_total_width_and_zoom_of_qr_code(path, width, gap):
@@ -25,7 +25,7 @@ def get_total_width_and_zoom_of_qr_code(path, width, gap):
     return total_width, zoom
 
 # square qr code
-def draw_qr_code_in_cad(path, x0=0, y0=0, width=1, gap=0):
+def draw_qr_code_in_cad(path, shape="square", x0=0, y0=0, width=1, gap=0):
     total_width, zoom = get_total_width_and_zoom_of_qr_code(path, width, gap)
     lines, attributes = svg2paths(path)
     polyline_points = []
@@ -40,7 +40,10 @@ def draw_qr_code_in_cad(path, x0=0, y0=0, width=1, gap=0):
                 zoom = (width + gap)/(max_x - min_x)
                 # draw polyline and empty polyline list
                 # invert y and move bottom left to (x0, y0)
-                square(x0+x*zoom, y0+(total_width-y)*zoom, width, width, xy0_position="center", layer=layer)
+                if shape == "square":
+                    square(x0+x*zoom, y0+(total_width-y)*zoom, width, width, xy0_position="center", layer=layer)
+                elif shape == "circle":
+                    circle(x0+x*zoom, y0+(total_width-y)*zoom, width, xy0_position="center", layer=layer)
                 polyline_points = []
         elif type(line) == svgpathtools.path.Curve:
             pass
@@ -48,6 +51,6 @@ def draw_qr_code_in_cad(path, x0=0, y0=0, width=1, gap=0):
 if __name__ == "__main__":
     cwd = os.path.dirname(__file__)
     # square
-    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), x0=0, y0=0, width=3) # width(=height) of one pixel in micrometers
+    #draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), x0=0, y0=0, width=3) # width(=height) of one pixel in micrometers
     # circular
-    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), x0=110, y0=0, width=1, gap=0.5) # width(=height) of one pixel in micrometers
+    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), shape="circle", x0=110, y0=0, width=1, gap=0.5) # width(=height) of one pixel in micrometers

@@ -11,9 +11,46 @@ from svgpathtools import svg2paths, wsvg
 import svgpathtools
 import io
 
-def qr_code(x0=0, y0=0, width=3, gap=0, text="test123", shape="square", version=4, layer=None):
-    svg_bytes = draw_and_save_qrcode(version, text)
-    draw_qr_code_in_cad(svg_bytes, x0, y0, width, gap, shape, layer) # width(=height) of one pixel in micrometers
+def qr_codes(x0=0, y0=0, x=500, y=200, equipment="mle", corner_qr_indices=None, layers=[]):
+    if equipment == "mle":
+        width = 3
+        gap = 0
+        shape = "square"
+    elif equipment == "eb":
+        width = 1
+        gap = 0.5
+        shape = "circle"
+    if corner_qr_indices is None:
+        corner_qr_indices = [[0,0], [-1,0], [0,-1], [-1,-1]]
+    total_width = get_total_width_of_qr_code(version=4, text="test")
+    total_width_in_micrometers = total_width*(width+gap)
+    x_counts = np.arange(np.ceil(x/total_width_in_micrometers))
+    y_counts = np.arange(np.ceil(y/total_width_in_micrometers))
+    text = "test"
+    # draw corner qrs
+    for i, j in corner_qr_indices:
+        x_count = x_counts[i]
+        y_count = y_counts[i]
+        x_corner = x0 + x_count*total_width_in_micrometers
+        y_corner = y0 + y_count*total_width_in_micrometers
+        qr_code(x0=x_corner, y0=y_corner, width=width, gap=gap, text=text, shape=shape, position="bottom_right", version=4, layer=layers[0])
+        
+    # draw process qrs
+    if len(layers) > 0: 
+        pass
+
+def qr_code(x0=0, y0=0, width=3, gap=0, text="test123", shape="square", position="bottom_left", version=4, layer=None):
+    total_width = get_total_width_of_qr_code(version, text)
+    total_width_in_micrometers = total_width*(width+gap)
+    if position == "bottom_left":
+        x0, y0 = x0, y0
+    elif position == "bottom_right":
+        x0, y0 = x0-total_width_in_micrometers, y0
+    elif position == "top_right":
+        x0, y0 = x0-total_width_in_micrometers, y0-total_width_in_micrometers
+    elif position == "top_left":
+        x0, y0 = x0, y0-total_width_in_micrometers
+    draw_qr_code_in_cad(version, text, x0, y0, width, gap, total_width, shape, layer) # width(=height) of one pixel in micrometers
 
 def draw_and_save_qrcode(version, text):
     qr = qrcode.QRCode(
@@ -30,7 +67,8 @@ def draw_and_save_qrcode(version, text):
     img = img.encode("utf-8")
     return img
 
-def get_total_width_of_qr_code(svg_bytes):
+def get_total_width_of_qr_code(version, text):
+    svg_bytes = draw_and_save_qrcode(version, text)
     with io.BytesIO() as b:
         b.write(svg_bytes)
         b.seek(0)
@@ -48,8 +86,8 @@ def get_total_width_of_qr_code(svg_bytes):
     total_width = max_x - min_x
     return total_width
 
-def draw_qr_code_in_cad(svg_bytes, x0, y0, width, gap, shape, layer):
-    total_width = get_total_width_of_qr_code(svg_bytes)
+def draw_qr_code_in_cad(version, text, x0, y0, width, gap, total_width, shape, layer):
+    svg_bytes = draw_and_save_qrcode(version, text)
     with io.BytesIO() as b:
         b.write(svg_bytes)
         b.seek(0)

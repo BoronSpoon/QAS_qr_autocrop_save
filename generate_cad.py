@@ -44,16 +44,18 @@ def qr_codes(x0=0, y0=0, x=500, y=200, cx=0, cy=0, ci=0, cj=0, operator_name="",
     total_width = get_total_width_of_qr_code(version=4, text="test")
     total_width_in_micrometers = total_width*(width+gap)
     total_gap_in_micrometers = total_width_in_micrometers*(marker_gap/marker_size)
-    x_counts = np.arange(np.ceil(x/total_width_in_micrometers)+1)
-    y_counts = np.arange(np.ceil(y/total_width_in_micrometers)+1)
+    x_width = np.ceil(x/total_width_in_micrometers)
+    y_width = np.ceil(y/total_width_in_micrometers)
+    x_positions = np.arange(x_width+1)
+    y_positions = np.arange(y_width+1)
     text = "test"
     # draw corner qrs
     for i, j in corner_qr_indices:
-        x_count = x_counts[i]
-        y_count = y_counts[j]
-        x_corner = x0 + x_count*total_width_in_micrometers # 0~n+1
-        y_corner = y0 + (y_count-1)*total_width_in_micrometers # -1~n
-        text = encode_qrcode.encode_corner_qr(x_pos=x_count, y_pos=y_count, device_width=x_counts[-1], device_height=y_counts[-1], marker_size=marker_size, marker_gap=marker_gap, cx=cx, cy=cy, ci=ci, cj=cj, operator_name=operator_name, sample_name=sample_name)
+        x_pos = x_positions[i]
+        y_pos = y_positions[j]
+        x_corner = x0 + x_pos*total_width_in_micrometers # 0~n+1
+        y_corner = y0 + (y_pos-1)*total_width_in_micrometers # -1~n
+        text = encode_qrcode.encode_corner_qr(x_pos=x_pos, y_pos=(y_width-y_pos), device_width=x_positions[-1], device_height=y_positions[-1], marker_size=marker_size, marker_gap=marker_gap, cx=cx, cy=cy, ci=ci, cj=cj, operator_name=operator_name, sample_name=sample_name)
         qr_code(x0=x_corner, y0=y_corner, width=width, gap=gap, text=text, shape=shape, position="bottom_right", version=4, layer=layers[0])
         
     # draw process qrs
@@ -62,10 +64,10 @@ def qr_codes(x0=0, y0=0, x=500, y=200, cx=0, cy=0, ci=0, cj=0, operator_name="",
         text = encode_qrcode.encode_process_qr(process_count=count, process_name=process_name)
         # top left (from left to right)
         x_corner = x0 + (count+0.5)*total_gap_in_micrometers
-        y_corner = y0 + (y_counts[-1]-1)*total_width_in_micrometers + 0.5*total_gap_in_micrometers
+        y_corner = y0 + (y_positions[-1]-1)*total_width_in_micrometers + 0.5*total_gap_in_micrometers
         qr_code(x0=x_corner, y0=y_corner, width=width, gap=gap, text=text, shape=shape, position="center", version=2, layer=layer)
         # bottom right (from right to left)
-        x_corner = x0 + x_counts[-1]*total_width_in_micrometers - (total_width_in_micrometers + (count+0.5)*total_gap_in_micrometers)
+        x_corner = x0 + x_positions[-1]*total_width_in_micrometers - (total_width_in_micrometers + (count+0.5)*total_gap_in_micrometers)
         y_corner = y0 + (-1+0.5)*total_gap_in_micrometers
         qr_code(x0=x_corner, y0=y_corner, width=width, gap=gap, text=text, shape=shape, position="center", version=2, layer=layer)
 

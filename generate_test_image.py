@@ -4,7 +4,7 @@ import os
 from contextlib import suppress
 from decode_qrcode import *
 from encode_qrcode import *
-from draw_qr_code import *
+from test.draw_qr_code import *
 
 def rotate_marker(frame_, angle, h, w):
     h_, w_ = frame_.shape[:2]

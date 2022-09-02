@@ -5,7 +5,7 @@ import os
 from contextlib import suppress
 from decode_qrcode import *
 from encode_qrcode import *
-from draw_qr_code import *
+from test.draw_qr_code import *
 
 cwd = os.path.dirname(__file__)
 

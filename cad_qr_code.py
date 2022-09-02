@@ -1,14 +1,40 @@
+import qrcode
+import cv2
+import qrcode.image.svg
+from qrcode.image.styles.moduledrawers import SquareModuleDrawer, CircleModuleDrawer
 import os, sys
 import numpy as np
 cwd = os.path.dirname(__file__)
 sys.path.append(os.path.join(cwd, "..", "autocad","autocadshapes"))
+from basic_shapes import square, circle
 from svgpathtools import svg2paths, wsvg
 import svgpathtools
-from basic_shapes import square, circle
-layer = "Ag%0_LPC_"
+import io
 
-def get_total_width_of_qr_code(path, width, gap):
-    lines, attributes = svg2paths(path)
+def qr_code(x0=0, y0=0, width=3, gap=0, text="test123", shape="square", version=4, layer=None):
+    svg_bytes = draw_and_save_qrcode(version, text)
+    draw_qr_code_in_cad(svg_bytes, x0, y0, width, gap, shape, layer) # width(=height) of one pixel in micrometers
+
+def draw_and_save_qrcode(version, text):
+    qr = qrcode.QRCode(
+        version=version,
+        error_correction=qrcode.constants.ERROR_CORRECT_Q,
+        box_size=10, 
+        border=0,
+        image_factory=qrcode.image.svg.SvgPathImage,
+    )
+    qr.add_data(text)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color=(255,255,255), back_color=(0,0,0)).to_string().decode("utf-8")
+    img = str.replace(img, "mm", "") # remove units
+    img = img.encode("utf-8")
+    return img
+
+def get_total_width_of_qr_code(svg_bytes):
+    with io.BytesIO() as b:
+        b.write(svg_bytes)
+        b.seek(0)
+        lines, attributes = svg2paths(b)
     polyline_points = []
     min_x = 1e9
     max_x = -1e9
@@ -22,10 +48,12 @@ def get_total_width_of_qr_code(path, width, gap):
     total_width = max_x - min_x
     return total_width
 
-# square qr code
-def draw_qr_code_in_cad(path, shape="square", x0=0, y0=0, width=1, gap=0):
-    total_width = get_total_width_of_qr_code(path, width, gap)
-    lines, attributes = svg2paths(path)
+def draw_qr_code_in_cad(svg_bytes, x0, y0, width, gap, shape, layer):
+    total_width = get_total_width_of_qr_code(svg_bytes)
+    with io.BytesIO() as b:
+        b.write(svg_bytes)
+        b.seek(0)
+        lines, attributes = svg2paths(b)
     polyline_points = []
     for line in lines[0]:
         if type(line) == svgpathtools.path.Line:
@@ -52,8 +80,7 @@ def draw_qr_code_in_cad(path, shape="square", x0=0, y0=0, width=1, gap=0):
             pass
 
 if __name__ == "__main__":
-    cwd = os.path.dirname(__file__)
     # square
-    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), x0=0, y0=0, width=3) # width(=height) of one pixel in micrometers
+    qr_code(x0=0, y0=0, width=3, text="square_test", layer = "Ag%0_LPC_") # width(=height) of one pixel in micrometers
     # circular
-    draw_qr_code_in_cad(os.path.join(cwd, "test", "1.svg"), shape="circle", x0=110, y0=0, width=1, gap=0.5) # width(=height) of one pixel in micrometers
+    qr_code(x0=110, y0=0, width=1, text="circle_test", gap=0.5, shape="circle", layer = "Ag%0_LPC_") # width(=height) of one pixel in micrometers

@@ -46,6 +46,8 @@ class Detect():
         )
         # for qrcode bounding box drawing on cropped image
         self.detector2 = pb.FactoryFiducial(np.uint8).qrcode()
+        self.process_count = None 
+        self.process_name = None 
 
     def draw_bounding_box(self, bbox, color=(0,0,255)):
         bbox = bbox.astype(int)
@@ -288,7 +290,8 @@ class Detect():
             c, s = np.cos(self.angle), np.sin(self.angle)
             self.process_qr_corner = [x - (c*(-width)-s*height), y - (s*(-width)+c*height)]
         except:
-            pass
+            self.process_count = None
+            self.process_name = None
 
     def rotate_and_crop_process_qr(self, ):
         x, y = self.device_corner
@@ -330,8 +333,12 @@ class Detect():
                 focus = self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"]["focus"]
                 if focus > self.processed_frame_focus : # if the newly obtained frame's focus is worse, keep the old frame in the buffer
                     return None
+        if self.process_count is None or self.process_name is None:
+            filename = [self.operator_name, self.device_name, "process_unknown", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"]
+        else:
+            filename = [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"]
         self.buffer[f"{self.cx}_{self.cy}_{self.ci}_{self.cj}"] = {
-            "filename": [self.operator_name, self.device_name, f"{self.process_count}_{self.process_name}", f"{self.cx}_{self.cy}_{self.ci}_{self.cj}.png"],
+            "filename": filename,
             "frame": self.processed_frame,
             "focus": self.processed_frame_focus,
             "focus_map": self.processed_frame_focus_map,
@@ -474,21 +481,24 @@ if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
-    d.get_video_parameters() # debug
+    if d.mode == "video": d.get_video_parameters() # debug
     if d.mode == "camera": d.prepare_capture(0)
     if d.mode == "camera": d.set_camera_parameters(width=1920, height=1080, fps=60)
     while d.frames_available:
         if d.mode == "video": d.read_video_frame()
+        if d.mode == "camera": d.read_camera_frame()
+        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
             d.detect_monitor_sleep()
             # Load image.
             if d.mode == "video": d.read_video_frame()
             if d.mode == "camera": d.read_camera_frame()
-            if d.mode == "image": d.read_image(os.path.join(cwd, "images", "test_images", "2.png"))
+            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
             d.preprocess()
             t1 = time.time()
             d.detect_rough() # 35 ms
@@ -521,7 +531,7 @@ if __name__ == '__main__':
                 d.store_processed_frame_to_ram() # ?
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
-            if d.mode == "video" and d.debug: d.shrink_original_frame()
+            if d.debug: d.shrink_original_frame()
             if d.debug: d.imshow_shrunk_original_frame() # 20 ms
             if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
             print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')

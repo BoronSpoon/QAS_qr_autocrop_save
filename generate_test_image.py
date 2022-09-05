@@ -4,7 +4,9 @@ import os
 from contextlib import suppress
 from decode_qrcode import *
 from encode_qrcode import *
-from test.draw_qr_code import *
+import sys
+sys.path.append("test")
+from draw_qr_code import *
 
 def rotate_marker(frame_, angle, h, w):
     h_, w_ = frame_.shape[:2]
@@ -25,10 +27,10 @@ for input_, output_, x, y, dx, dy, angle in [
     ["microscope_1.jpg", "1.png", 160, 250, 9, 4, 0],
     ["microscope_2.jpg", "2.png", 150, 100, 12, 4, np.pi/14],
 ]:
-    markers["TL"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=0,    y_pos=0,    device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
-    markers["TR"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=dx+1, y_pos=0,    device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
-    markers["BL"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=0,    y_pos=dy+1, device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
-    markers["BR"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=dx+1, y_pos=dy+1, device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
+    markers["TL"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=0,    y_pos=dy+1, device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
+    markers["TR"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=dx+1, y_pos=dy+1,    device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
+    markers["BL"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=0,    y_pos=0,    device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
+    markers["BR"] = draw_qrcode(version=4, string=encode_corner_qr(x_pos=dx+1, y_pos=0, device_width=dx, device_height=dy, marker_size=87e-6, marker_gap=87e-6, cx=4, cy=5, ci=1, cj=0, operator_name="yamada", sample_name="encoding test"))
 
     markers["P0"] = draw_qrcode(version=2, string=encode_process_qr(process_count=0, process_name="process test 0"))
     markers["P1"] = draw_qrcode(version=2, string=encode_process_qr(process_count=1, process_name="process test 1"))

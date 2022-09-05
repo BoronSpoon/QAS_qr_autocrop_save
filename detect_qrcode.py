@@ -211,6 +211,7 @@ class Detect():
 
     def decode_corner_qr(self):
         self.x_pos, self.y_pos, self.device_width, self.device_height, self.marker_real_width, self.marker_real_gap, self.cx, self.cy, self.ci, self.cj, self.operator_name, self.device_name = decode_qrcode.decode_corner_qr(self.result)
+        self.y_pos = self.device_height - (self.y_pos - 1) # convert opencv coordinate system to normal cartesian coordinate system(x_pos,y_pos=0,0 is at bottom left)
         self.bbox_center = np.mean(np.array(self.bbox), axis=0)
 
     def decode_process_qr(self, result=None):
@@ -480,9 +481,9 @@ class Detect():
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
-    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
     if d.mode == "video": d.get_video_parameters() # debug
@@ -491,14 +492,14 @@ if __name__ == '__main__':
     while d.frames_available:
         if d.mode == "video": d.read_video_frame()
         if d.mode == "camera": d.read_camera_frame()
-        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
+        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "2.png"))
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
             d.detect_monitor_sleep()
             # Load image.
             if d.mode == "video": d.read_video_frame()
             if d.mode == "camera": d.read_camera_frame()
-            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
+            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "2.png"))
             d.preprocess()
             t1 = time.time()
             d.detect_rough() # 35 ms
@@ -527,8 +528,11 @@ if __name__ == '__main__':
                 d.detect_process_qr() # 50 ms
                 if d.debug: d.draw_process_data_text() # 110 ms
                 d.process_frame_for_saving() # 20 ms
-                d.get_processed_frame_focus() # ?
-                d.store_processed_frame_to_ram() # ?
+                try:
+                    d.get_processed_frame_focus() # ?
+                    d.store_processed_frame_to_ram() # ?
+                except:
+                    pass
             if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.debug: d.shrink_original_frame()

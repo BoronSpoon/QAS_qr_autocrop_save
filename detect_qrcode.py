@@ -44,6 +44,7 @@ class Detect():
             os.path.join(cwd, "model", "sr.prototxt"),
             os.path.join(cwd, "model", "sr.caffemodel")
         )
+        # self.detector1.setScaleFactor(0.5)
         # for qrcode bounding box drawing on cropped image
         self.detector2 = pb.FactoryFiducial(np.uint8).qrcode()
         self.process_count = None 
@@ -73,7 +74,7 @@ class Detect():
         self.draw_corner_circle(self.device_corner, color=self.green)
 
     def shift_bounding_box_to_image_coordinate(self):
-        self.bbox = np.array(self.detector2.detections[0].bounds.convert_tuple()) + np.array([self.min_x, self.min_y])
+        self.bbox = np.array(self.detector2.detection.bounds.convert_tuple()) + np.array([self.min_x, self.min_y])
         self.bbox_center = np.mean(np.array(self.bbox), axis=0)
 
     def get_distance(self, point1, point2):
@@ -206,6 +207,9 @@ class Detect():
         # pyboof only accepts uint8 grayscale image
         self.cropped_framepb = pb.ndarray_to_boof(np.ascontiguousarray(self.cropped_frame))
 
+    def process_detection(self,):
+        self.result = self.detector2.detection.message
+
     def is_corner_qr(self,):
         return decode_qrcode.classify_qr(self.result) == "corner_QR"
 
@@ -220,7 +224,7 @@ class Detect():
         else:
             return decode_qrcode.decode_process_qr(result)
 
-    def draw_rotated_text(self, org, text, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.6, color=(0,0,0), thickness=1, anchor="bottom_left", **kwargs):
+    def draw_rotated_text(self, org, text, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.6, color=(0,0,255), thickness=1, anchor="bottom_left", **kwargs):
         (label_width, label_height), baseline = cv2.getTextSize(text, font, fontScale, thickness)
         self.mask *= 0
         x0, y0 = org
@@ -481,9 +485,9 @@ class Detect():
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
-    #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
     if d.mode == "video": d.get_video_parameters() # debug
@@ -492,14 +496,14 @@ if __name__ == '__main__':
     while d.frames_available:
         if d.mode == "video": d.read_video_frame()
         if d.mode == "camera": d.read_camera_frame()
-        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "2.png"))
+        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
             d.detect_monitor_sleep()
             # Load image.
             if d.mode == "video": d.read_video_frame()
             if d.mode == "camera": d.read_camera_frame()
-            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "2.png"))
+            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
             d.preprocess()
             t1 = time.time()
             d.detect_rough() # 35 ms
@@ -513,9 +517,12 @@ if __name__ == '__main__':
                             d.crop_frame() # 5 ms
                             ret = d.detect_precise() # 50 ms
                             if ret:
-                                d.shift_bounding_box_to_image_coordinate() # 0 ms
-                                if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-                                d.add_to_corner_qr_dict()
+                                for d.detector2.detection in d.detector2.detections:
+                                    d.process_detection()
+                                    if d.is_corner_qr():
+                                        d.shift_bounding_box_to_image_coordinate() # 0 ms
+                                        if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+                                        d.add_to_corner_qr_dict()
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
                 d.get_angle() # 0 ms

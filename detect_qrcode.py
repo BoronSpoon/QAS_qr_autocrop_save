@@ -361,7 +361,11 @@ class Detect():
 
     def detect_monitor_wake(self, ): 
         # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
-        while True:
+        while True:    
+            if d.mode == "video": d.read_video_frame()
+            if d.mode == "camera": d.read_camera_frame()
+            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
+
             if abs(np.mean(self.original_frame) - self.wake_threshold) > 1:
                 self.monitor_is_awake = True
                 print("monitor is awake")
@@ -372,6 +376,10 @@ class Detect():
         # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake
         count = 0
         while True:
+            if d.mode == "video": d.read_video_frame()
+            if d.mode == "camera": d.read_camera_frame()
+            if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
+            
             if count > 10:
                 self.monitor_is_awake = False
                 print("monitor is in sleep")
@@ -495,9 +503,6 @@ if __name__ == '__main__':
     if d.mode == "camera": d.prepare_capture(0)
     if d.mode == "camera": d.set_camera_parameters(width=1920, height=1080, fps=60)
     while d.frames_available:
-        if d.mode == "video": d.read_video_frame()
-        if d.mode == "camera": d.read_camera_frame()
-        if d.mode == "image": d.read_image(os.path.join(cwd, "test", "cad.png"))
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
             d.detect_monitor_sleep()

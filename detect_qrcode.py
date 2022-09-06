@@ -383,6 +383,7 @@ class Detect():
             if count > 10:
                 self.monitor_is_awake = False
                 print("monitor is in sleep")
+                cv2.destroyAllWindows()
                 break
             if abs(np.mean(self.original_frame) - self.wake_threshold) < 1:
                 count += 1

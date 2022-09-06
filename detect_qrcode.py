@@ -223,7 +223,7 @@ class Detect():
         else:
             return decode_qrcode.decode_process_qr(result)
 
-    def draw_rotated_text(self, org, text, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.6, color=(0,0,255), thickness=1, anchor="bottom_left", **kwargs):
+    def draw_rotated_text(self, org, text, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.8, color=(0,0,255), thickness=3, anchor="bottom_left", **kwargs):
         (label_width, label_height), baseline = cv2.getTextSize(text, font, fontScale, thickness)
         self.mask *= 0
         x0, y0 = org
@@ -240,6 +240,16 @@ class Detect():
         self.mask = cv2.warpAffine(self.mask, M, [self.mask.shape[1], self.mask.shape[0]], borderValue=(0,0,0))
         self.original_frame = self.original_frame * np.where(self.mask > 1, 0, 1) + (self.mask/255 * np.array([[color]]))
         self.original_frame = self.original_frame.astype(np.uint8)
+
+    def draw_fps(self, time, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.8, color=(0,0,255), thickness=3):
+        lines = [
+            f"Time taken: {round(1000*(time),1)} ms",
+            f"Framerate: {round(1/time,1)} fps",
+        ]
+        for count, line in enumerate(lines):
+            (text_width, text_height) = cv2.getTextSize(line, font, fontScale, thickness)[0]
+            text_height = int(text_height*1.5)
+            cv2.putText(self.original_frame, line, (self.width-text_width, text_height*(count+1)), font, fontScale, color, thickness)
 
     def draw_device_data_text(self):
         text = dedent(f"""
@@ -272,7 +282,7 @@ class Detect():
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])
 
     def imshow_shrunk_original_frame(self,):
-        cv2.imshow("frame", cv2.resize(self.combined_frame, (int(self.combined_frame.shape[1]/3), int(self.combined_frame.shape[0]/3))))
+        cv2.imshow("frame", cv2.resize(self.combined_frame, (int(self.combined_frame.shape[1]/3), int(self.combined_frame.shape[0]/3)), interpolation=cv2.INTER_AREA))
         cv2.waitKey(1)
 
     def detect_process_qr(self,):
@@ -548,10 +558,10 @@ if __name__ == '__main__':
                 except:
                     pass
             t2 = time.time()
+            d.draw_fps(t2-t1)
             if d.debug: d.shrink_original_frame()
             if d.debug: d.imshow_shrunk_original_frame() # 20 ms
             if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
-            print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
             d.detect_monitor_sleep()
         d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()

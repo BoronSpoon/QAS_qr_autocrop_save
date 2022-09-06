@@ -538,9 +538,9 @@ if __name__ == '__main__':
                 try:
                     d.get_processed_frame_focus() # ?
                     d.store_processed_frame_to_ram() # ?
+                    if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
                 except:
                     pass
-            if d.debug: d.draw_rough_marker_bounding_box() # 0 ms
             t2 = time.time()
             if d.debug: d.shrink_original_frame()
             if d.debug: d.imshow_shrunk_original_frame() # 20 ms

@@ -506,7 +506,6 @@ if __name__ == '__main__':
     while d.frames_available:
         d.detect_monitor_wake()
         while d.monitor_is_awake and d.frames_available:
-            d.detect_monitor_sleep()
             # Load image.
             if d.mode == "video": d.read_video_frame()
             if d.mode == "camera": d.read_camera_frame()
@@ -553,6 +552,7 @@ if __name__ == '__main__':
             if d.debug: d.imshow_shrunk_original_frame() # 20 ms
             if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms
             print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
+            d.detect_monitor_sleep()
         d.write_processed_frame_to_disk() # write processed frame to disk when monitor goes to sleep
     cv2.destroyAllWindows()
     if d.mode == "video" and d.debug: d.release_video_writer()

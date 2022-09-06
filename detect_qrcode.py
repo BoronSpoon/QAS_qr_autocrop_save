@@ -5,7 +5,6 @@ import os, sys
 import numpy as np
 import pyboof as pb
 import decode_qrcode
-import blur_detector
 from textwrap import dedent
 cwd = os.path.dirname(__file__)
 
@@ -484,10 +483,11 @@ class Detect():
 
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
-    #d = Detect(savedir=os.path.join("%USERPROFILE%", "Google Drive", "microscope"), mode="camera")
+    #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera")
+    d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera", debug=True)
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
     if d.mode == "video": d.get_video_parameters() # debug

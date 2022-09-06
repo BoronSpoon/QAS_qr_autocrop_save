@@ -357,6 +357,7 @@ class Detect():
             if not os.path.isdir(directory):
                 os.makedirs(directory)
             cv2.imwrite(path, frame)
+        self.buffer = {} # reset buffer
 
     def detect_monitor_wake(self, ): 
         # detect the on/off of microscope light by mean intensity. if its over threshold, it is awake

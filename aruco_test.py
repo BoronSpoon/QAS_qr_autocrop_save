@@ -6,6 +6,7 @@ import imutils
 import cv2
 import sys
 import os
+import time
 cwd = os.path.dirname(__file__)
 
 # construct the argument parser and parse the arguments
@@ -31,6 +32,8 @@ arucoParams = cv2.aruco.DetectorParameters_create()
 (corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict,
 	parameters=arucoParams)
 
+
+t1 = time.time()
 # verify *at least* one ArUco marker was detected
 if len(corners) > 0:
 	# flatten the ArUco IDs list
@@ -67,6 +70,9 @@ if len(corners) > 0:
 			0.5, (0, 255, 0), 2)
 		print("[INFO] ArUco marker ID: {}".format(markerID))
 
-		# show the output image
-		cv2.imshow("Image", image)
-		cv2.waitKey(0)
+
+t2 = time.time()
+print('Time Taken : ', round(1000*(t2 - t1),1), ' ms')
+# show the output image
+cv2.imshow("Image", image)
+cv2.waitKey(0)

@@ -203,12 +203,6 @@ class Detect():
         self.y_pos = self.device_height - (self.y_pos - 1) # convert opencv coordinate system to normal cartesian coordinate system(x_pos,y_pos=0,0 is at bottom left)
         self.bbox_center = np.mean(np.array(self.bbox), axis=0)
 
-    def decode_process_qr(self, result=None):
-        if result is None:
-            return decode_qrcode.decode_process_qr(self.result)
-        else:
-            return decode_qrcode.decode_process_qr(result)
-
     def draw_rotated_text(self, org, text, font=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.8, color=(0,0,255), thickness=3, anchor="bottom_left", **kwargs):
         (label_width, label_height), baseline = cv2.getTextSize(text, font, fontScale, thickness)
         self.mask *= 0
@@ -267,27 +261,20 @@ class Detect():
         cv2.imshow("frame", cv2.resize(self.combined_frame, (int(self.combined_frame.shape[1]/3), int(self.combined_frame.shape[0]/3)), interpolation=cv2.INTER_AREA))
         cv2.waitKey(1)
 
-    def detect_process_qr(self,):
-        cropped_process_qr_frame = self.rotate_and_crop_process_qr()
-        try:
-            results, bboxes = self.detector1.detectAndDecode(cropped_process_qr_frame)
-            process_counts = []
-            process_names = {}
-            for result, bbox in zip(results, bboxes):
-                process_count, process_name = self.decode_process_qr(result)
-                process_counts.append(process_count)
-                process_names[process_count] = process_name
-            # find the max process count and set it as the current process
-            self.process_count = max(process_counts)
-            self.process_name = process_names[self.process_count]
-            
-            width, height = self.marker_gap*self.process_count, self.marker_gap
-            x, y = self.device_corner 
-            c, s = np.cos(self.angle), np.sin(self.angle)
-            self.process_qr_corner = [x - (c*(-width)-s*height), y - (s*(-width)+c*height)]
-        except:
-            self.process_count = None
-            self.process_name = None
+    def decode_process_qr(self,):
+        process_counts = []
+        process_names = {}
+        process_count, process_name = decode_qrcode.decode_process_qr(self.result)
+        process_counts.append(process_count)
+        process_names[process_count] = process_name
+        # find the max process count and set it as the current process
+        self.process_count = max(process_counts)
+        self.process_name = process_names[self.process_count]
+        
+        width, height = self.marker_gap*self.process_count, self.marker_gap
+        x, y = self.device_corner 
+        c, s = np.cos(self.angle), np.sin(self.angle)
+        self.process_qr_corner = [x - (c*(-width)-s*height), y - (s*(-width)+c*height)]
 
     def rotate_and_crop_process_qr(self, ):
         x, y = self.device_corner
@@ -487,8 +474,8 @@ if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera")
     #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera", debug=True)
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
-    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
@@ -506,11 +493,16 @@ if __name__ == '__main__':
             t1 = time.time()
             d.detect_rough() # 35 ms
             d.clear_corner_qr_dict()
+            d.process_count = None
+            d.process_name = None
             for d.result, d.bbox in zip(d.results, d.bboxes):
                 if d.is_corner_qr(): # get bounding box for only corner QR code
                     d.decode_corner_qr() # 0 ms
                     d.add_to_corner_qr_dict()                                        
                     if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
+            for d.result, d.bbox in zip(d.results, d.bboxes):
+                if not d.is_corner_qr(): # decode process qr after corner qr is all detected
+                    d.decode_process_qr() # ?
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
                 d.get_angle() # 0 ms
@@ -520,7 +512,6 @@ if __name__ == '__main__':
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_data_text() # 110 ms
-                d.detect_process_qr() # 50 ms
                 if d.debug: d.draw_process_data_text() # 110 ms
                 d.process_frame_for_saving() # 20 ms
                 try:

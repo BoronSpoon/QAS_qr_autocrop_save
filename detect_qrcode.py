@@ -479,10 +479,8 @@ class Detect():
     def corner_qr_count_for_device(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if device in self.corner_qr_dict:
-            if d.debug: print(f"corner qr count is {len(self.corner_qr_dict[device])}")
             return len(self.corner_qr_dict[device])
         else:
-            if d.debug: print("corner qr count is 0")
             return 0
 
 if __name__ == '__main__':
@@ -510,7 +508,6 @@ if __name__ == '__main__':
             d.clear_corner_qr_dict()
             for d.result, d.bbox in zip(d.results, d.bboxes):
                 if d.is_corner_qr(): # get bounding box for only corner QR code
-                    if d.debug: print("is corner qr")
                     d.decode_corner_qr() # 0 ms
                     d.add_to_corner_qr_dict()                                        
                     if d.debug: d.draw_precise_marker_bounding_box() # 0 ms

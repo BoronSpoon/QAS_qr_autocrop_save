@@ -474,8 +474,8 @@ if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera")
     #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera", debug=True)
-    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
-    d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
     if d.mode == "video" and d.debug: d.prepare_video_writer(os.path.join(cwd, "test", "1_result.avi"))
@@ -500,9 +500,6 @@ if __name__ == '__main__':
                     d.decode_corner_qr() # 0 ms
                     d.add_to_corner_qr_dict()                                        
                     if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-            for d.result, d.bbox in zip(d.results, d.bboxes):
-                if not d.is_corner_qr(): # decode process qr after corner qr is all detected
-                    d.decode_process_qr() # ?
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
                 d.get_angle() # 0 ms
@@ -511,8 +508,11 @@ if __name__ == '__main__':
                 if d.debug: d.draw_corner_circles() # 0 ms
                 d.get_device_bounding_box() # 0 ms
                 if d.debug: d.draw_device_bounding_box() # 0 ms
-                if d.debug: d.draw_device_data_text() # 110 ms
-                if d.debug: d.draw_process_data_text() # 110 ms
+                #if d.debug: d.draw_device_data_text() # 110 ms    
+                for d.result, d.bbox in zip(d.results, d.bboxes):
+                    if not d.is_corner_qr(): # decode process qr after corner qr is all detected
+                        d.decode_process_qr() # ?
+                #if d.debug: d.draw_process_data_text() # 110 ms
                 d.process_frame_for_saving() # 20 ms
                 try:
                     d.get_processed_frame_focus() # ?
@@ -521,7 +521,8 @@ if __name__ == '__main__':
                 except:
                     pass
             t2 = time.time()
-            d.draw_fps(t2-t1)
+            if d.debug: d.draw_fps(t2-t1)
+            #print(f"Framerate: {round(1/(t2-t1),1)} fps")
             if d.debug: d.shrink_original_frame()
             if d.debug: d.imshow_shrunk_original_frame() # 20 ms
             if d.mode == "video" and d.debug: d.write_combined_frame_to_video_writer() # 5 ms

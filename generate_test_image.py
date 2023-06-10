@@ -43,7 +43,7 @@ for input_, output_, x, y, dx, dy, angle in [
     my_, mx_ = markers["TL"].shape[:2]
     my, mx = int(abs(c*my_)+abs(s*mx_)), int(abs(c*mx_)+abs(s*my_))
     for key in markers.keys():
-        rotated_markers[key] = rotate_marker(markers[key], angle, my, mx)
+        rotated_markers[key] = np.where(rotate_marker(markers[key], angle, my, mx)>127,255,0)
         masks[key] = calculate_mask(rotated_markers[key])
     frame = cv2.imread(os.path.join(cwd, "test", input_))
     # corner qr codes

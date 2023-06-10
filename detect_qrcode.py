@@ -3,7 +3,6 @@ import sys
 import time
 import os, sys
 import numpy as np
-import pyboof as pb
 import decode_qrcode
 from textwrap import dedent
 cwd = os.path.dirname(__file__)
@@ -43,9 +42,6 @@ class Detect():
             os.path.join(cwd, "model", "sr.prototxt"),
             os.path.join(cwd, "model", "sr.caffemodel")
         )
-        # self.detector1.setScaleFactor(0.5)
-        # for qrcode bounding box drawing on cropped image
-        self.detector2 = pb.FactoryFiducial(np.uint8).qrcode()
         self.process_count = None 
         self.process_name = None 
 
@@ -71,10 +67,6 @@ class Detect():
     def draw_corner_circles(self, ):
         self.draw_corner_circle(self.marker_corner, color=self.red)
         self.draw_corner_circle(self.device_corner, color=self.green)
-
-    def shift_bounding_box_to_image_coordinate(self):
-        self.bbox = np.array(self.detector2.detection.bounds.convert_tuple()) + np.array([self.min_x, self.min_y])
-        self.bbox_center = np.mean(np.array(self.bbox), axis=0)
 
     def get_distance(self, point1, point2):
         distance = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
@@ -104,7 +96,7 @@ class Detect():
                 [bbox[3][0]-bbox[0][0], bbox[3][1]-bbox[0][1]],
             ]))
             self.marker_gap = self.marker_width*self.marker_real_gap/self.marker_real_width
-        elif d.corner_qr_count_for_device() == 2:
+        elif d.corner_qr_count_for_device() >= 2:
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
@@ -130,7 +122,7 @@ class Detect():
             self.angles = np.where(self.angles < np.pi, self.angles+np.pi*2, self.angles)
             self.angles = np.where(self.angles < np.pi, self.angles+np.pi*2, self.angles)
             self.angle = np.mean(self.angles)
-        elif d.corner_qr_count_for_device() == 2:
+        elif d.corner_qr_count_for_device() >= 2:
             centers = [self.corner_qr_dict[self.device][i]["bbox_center"] for i in range(2)]
             x_pos = [self.corner_qr_dict[self.device][i]["x_pos"] for i in range(2)]
             y_pos = [self.corner_qr_dict[self.device][i]["y_pos"] for i in range(2)]
@@ -200,12 +192,6 @@ class Detect():
         self.min_x, self.min_y = max(0, self.center_x-self.span_x), max(0, self.center_y-self.span_y)
         self.max_x, self.max_y = min(self.width, self.center_x+self.span_x), min(self.height, self.center_y+self.span_y)
 
-    def crop_frame(self):
-        # crop image by bounding box
-        self.cropped_frame = self.frame[int(self.min_y):int(self.max_y), int(self.min_x):int(self.max_x)]
-        # pyboof only accepts uint8 grayscale image
-        self.cropped_framepb = pb.ndarray_to_boof(np.ascontiguousarray(self.cropped_frame))
-
     def process_detection(self,):
         self.result = self.detector2.detection.message
 
@@ -272,11 +258,7 @@ class Detect():
 
     def detect_rough(self, ):
         self.results, self.bboxes = self.detector1.detectAndDecode(self.frame)
-        self.bboxes = [np.array(bbox) for bbox in self.bboxes]
-
-    def detect_precise(self, ):
-        self.detector2.detect(self.cropped_framepb)
-        return len(self.detector2.detections) > 0
+        self.bboxes = [bbox.astype(np.int32) for bbox in self.bboxes]
 
     def shrink_original_frame(self,):
         self.combined_frame = np.vstack([self.original_frame, cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)])
@@ -497,15 +479,17 @@ class Detect():
     def corner_qr_count_for_device(self, ):
         device = f"{self.cx}, {self.cy}, {self.ci}, {self.cj}, {self.device_name}"
         if device in self.corner_qr_dict:
+            if d.debug: print(f"corner qr count is {len(self.corner_qr_dict[device])}")
             return len(self.corner_qr_dict[device])
         else:
+            if d.debug: print("corner qr count is 0")
             return 0
 
 if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera")
-    d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera", debug=True)
-    #d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
+    #d = Detect(savedir=os.path.join("G:", "マイドライブ", "qas_microscope"), mode="camera", debug=True)
+    d = Detect(savedir=os.path.join(cwd, "test"), mode="video", debug=True)
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="video")
     #d = Detect(savedir=os.path.join(cwd, "test"), mode="image", debug=True)
     if d.mode == "video": d.prepare_capture(os.path.join(cwd, "test", "1.avi"))
@@ -526,19 +510,10 @@ if __name__ == '__main__':
             d.clear_corner_qr_dict()
             for d.result, d.bbox in zip(d.results, d.bboxes):
                 if d.is_corner_qr(): # get bounding box for only corner QR code
+                    if d.debug: print("is corner qr")
                     d.decode_corner_qr() # 0 ms
-                    if d.corner_qr_count_for_device() < 2: # limit to 2 corner qrs
-                        if not d.qr_is_duplicate(): # if qr is not duplicate
-                            d.extend_bbox() # 0 ms
-                            d.crop_frame() # 5 ms
-                            ret = d.detect_precise() # 50 ms
-                            if ret:
-                                for d.detector2.detection in d.detector2.detections:
-                                    d.process_detection()
-                                    if d.is_corner_qr():
-                                        d.shift_bounding_box_to_image_coordinate() # 0 ms
-                                        if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
-                                        d.add_to_corner_qr_dict()
+                    d.add_to_corner_qr_dict()                                        
+                    if d.debug: d.draw_precise_marker_bounding_box() # 0 ms
             for d.device in d.corner_qr_dict.keys():
                 d.get_marker_width() # 0 ms
                 d.get_angle() # 0 ms

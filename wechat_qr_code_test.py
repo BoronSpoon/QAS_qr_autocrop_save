@@ -19,7 +19,8 @@ if __name__ == '__main__':
         os.path.join(cwd, "model", "sr.caffemodel")
     )
     
-    img = cv2.imread(os.path.join(cwd, "test", "test_qr.png"))
+    #img = cv2.imread(os.path.join(cwd, "test", "test_qr.png"))
+    img = cv2.imread(os.path.join(cwd, "test", "2.png"))
     #cv2.imshow("a", img)
     #cv2.waitKey(0)
  

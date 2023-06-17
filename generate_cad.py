@@ -10,7 +10,7 @@ from basic_shapes import square, circle
 from svgpathtools import svg2paths, wsvg
 import svgpathtools
 import io
-import encode_qrcode
+import test.encode_qrcode as encode_qrcode
 
 def get_equipment_parameters(equipment):
     if equipment == "mle":

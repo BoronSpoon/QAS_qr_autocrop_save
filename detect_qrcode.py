@@ -3,7 +3,7 @@ import sys
 import time
 import os, sys
 import numpy as np
-import decode_qrcode
+import test.decode_qrcode as decode_qrcode
 from textwrap import dedent
 cwd = os.path.dirname(__file__)
 

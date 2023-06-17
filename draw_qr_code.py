@@ -1,6 +1,5 @@
 import pyqrcode
 import numpy as np
-import cv2
 
 def string2array(string):
     data = string.split("\n")

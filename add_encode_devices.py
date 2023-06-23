@@ -22,17 +22,15 @@ class AED_Devices():
                 string = f'{qr_code_type};{kwargs["total_device_count"]},{kwargs["operator_name"]},{kwargs["chip_name"]}'
                 strings[qr_code_type].append(string)
             elif qr_code_type == 1:
-                # {folder_depth_count: [folder_names] for folder_depth_count in folder_depth_counts}
-                arg_dict = self.device_folder_names 
-                for folder_depth_count, folder_names in arg_dict.keys():
+                for folder_depth_count, folder_names in self.device_folder_names.keys():
                     i = 0
                     string = ""
                     while (i < len(folder_names)):
                         if string == "":
                             string = f'{qr_code_type};{folder_depth_count},{i}'
-                        string_ = f',{folder_names[i]};'
-                        if len(string + string_) > char_count_limit:
-                            strings[qr_code_type].append(string)
+                        string_ = f',{folder_names[i]}'
+                        if len(string + string_ + 1) > char_count_limit: # +1 is for ";"
+                            strings[qr_code_type].append(f"{string};")
                             string = ""
                             continue
                         else:

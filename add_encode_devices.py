@@ -1,6 +1,14 @@
 class AED_Devices():
     def __init__():
         pass
+    def add_device(
+        self,
+    ):
+        pass
+    def add_process(
+        self,
+    ):
+        pass
     def encode_qr(
         self,
         qr_code_type_count = 6,
@@ -14,23 +22,22 @@ class AED_Devices():
                 string = f'{qr_code_type};{kwargs["total_device_count"]},{kwargs["operator_name"]},{kwargs["chip_name"]}'
                 strings[qr_code_type].append(string)
             elif qr_code_type == 1:
-                i = 0
-                string = ""
-                arg_dicts = kwargs["arg_dicts"]
-                while (i < len(arg_dicts)):
-                    if string == "":
-                        string = f'{qr_code_type};'
-                    arg_dict = arg_dicts[i]
-                    string_ = ""
-                    string_ += f'{arg_dict["folder_depth_count"]},{arg_dict["start_index"]},'
-                    string_ += f'{",".join([i for i in arg_dict["folder_names"]])};'
-                    if len(string + string_) > char_count_limit:
-                        strings[qr_code_type].append(string)
-                        string = ""
-                        continue
-                    else:
-                        string += string
-                        i += 1
+                # {folder_depth_count: [folder_names] for folder_depth_count in folder_depth_counts}
+                arg_dict = self.device_folder_names 
+                for folder_depth_count, folder_names in arg_dict.keys():
+                    i = 0
+                    string = ""
+                    while (i < len(folder_names)):
+                        if string == "":
+                            string = f'{qr_code_type};{folder_depth_count},{i}'
+                        string_ = f',{folder_names[i]};'
+                        if len(string + string_) > char_count_limit:
+                            strings[qr_code_type].append(string)
+                            string = ""
+                            continue
+                        else:
+                            string += string
+                            i += 1
             elif qr_code_type == 2:
                 i = 0
                 string = ""

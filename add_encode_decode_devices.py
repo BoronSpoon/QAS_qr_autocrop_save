@@ -4,6 +4,7 @@ class AED_Devices():
     def encode_qr(
         self,
         qr_code_type_count = 6,
+        char_count_limit = 108,
         **kwargs,
     ):
         strings = {i:[] for i in range(qr_code_type_count)}
@@ -13,12 +14,23 @@ class AED_Devices():
                 string = f'{qr_code_type};{kwargs["total_device_count"]},{kwargs["operator_name"]},{kwargs["chip_name"]}'
                 strings[qr_code_type].append(string)
             elif qr_code_type == 1:
+                i = 0
+                string = ""
                 arg_dicts = kwargs["arg_dicts"]
-                for i in range(len(arg_dicts)):
-                    string = f'{qr_code_type};'
+                while (i < len(arg_dicts)):
+                    if string == "":
+                        string = f'{qr_code_type};'
                     arg_dict = arg_dicts[i]
-                    string += f'{arg_dict["folder_depth_count"]},{arg_dict["start_index"]},'
-                    string += f'{",".join([i for i in arg_dict["folder_names"]])};'
+                    string_ = ""
+                    string_ += f'{arg_dict["folder_depth_count"]},{arg_dict["start_index"]},'
+                    string_ += f'{",".join([i for i in arg_dict["folder_names"]])};'
+                    if len(string + string_) > char_count_limit:
+                        string = ""
+                        strings[qr_code_type].append(string)
+                        continue
+                    else:
+                        string += string
+                        i += 1
             elif qr_code_type == 2:
                 string = f'{qr_code_type};'
                 arg_dicts = kwargs["arg_dicts"]

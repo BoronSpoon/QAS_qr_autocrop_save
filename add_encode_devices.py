@@ -19,7 +19,7 @@ class AED_Devices():
         string = ""
         for qr_code_type in range(qr_code_type_count):
             if qr_code_type == 0:
-                string = f'{qr_code_type};{kwargs["total_device_count"]},{kwargs["operator_name"]},{kwargs["chip_name"]}'
+                string = f'{qr_code_type};{len(self.devices)},{self.operator_name},{self.chip_name}'
                 strings[qr_code_type].append(string)
             elif qr_code_type == 1:
                 for folder_depth_count, folder_names in self.device_folder_names.keys():
@@ -38,28 +38,31 @@ class AED_Devices():
                             i += 1
             elif qr_code_type == 2:
                 i = 0
+                j = 0
                 string = ""
-                arg_dicts = kwargs["arg_dicts"]
-                while (i < len(arg_dicts)):
-                    if string == "":
-                        string = f'{qr_code_type};'
-                    arg_dict = arg_dicts[i]
-                    string_ = ""
-                    string_ += f'{arg_dict["start_device_count"]},{arg_dict["end_device_count"]},{arg_dict["start_aruco_count"]},{arg_dict["end_aruco_count"]},'
-                    string_ += f'{arg_dict["device_x_len"]},{arg_dict["device_y_len"]},{arg_dict["aruco_x_offset"]},{arg_dict["aruco_y_offset"]},'
-                    string_ += f'{arg_dict["aruco_size"]},'
-                    string_ += f'{",".join([i for i in arg_dict["folder_count_at_each_depth"]])};'
+                for i in range(len(self.devices)):
+                    while (j < len(self.device_aruco)):
+                        if string == "":
+                            string += f'{qr_code_type};{i},{i+1},'
+                            string += f'{j},{j+1},'
+                        arg_dict = arg_dicts[i]
+                        string_ = ""
+                        string_ += f'{self.devices[i]["device_x_len"]},{self.devices[i]["device_y_len"]},'
+                        string_ += f'{self.device_aruco[i][j]["aruco_x_offset"]},{self.device_aruco[i][j]["aruco_y_offset"]},'
+                        string_ += f'{self.device_aruco[i][j]["aruco_size"]},'
+                        string_ += f'{",".join([i for i in self.devices[i]["folder_count_at_each_depth"]])};'
                     
-                    if len(string + string_) > char_count_limit:
-                        strings[qr_code_type].append(string)
-                        string = ""
-                        continue
-                    else:
-                        string += string
-                        i += 1
+                        if len(string + string_) > char_count_limit:
+                            strings[qr_code_type].append(string)
+                            string = ""
+                            continue
+                        else:
+                            string += string
+                            i += 1
             elif qr_code_type == 3:
-                string = f'{qr_code_type};{kwargs["process_count"]},{kwargs["process_name"]}'
-                strings[qr_code_type].append(string)
+                for process_count, process in enumerate(self.processes):
+                    string = f'{qr_code_type};{process_count},{process["name"]}'
+                    strings[qr_code_type].append(string)
             elif qr_code_type == 4:
                 i = 0
                 string = ""

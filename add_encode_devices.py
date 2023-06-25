@@ -16,8 +16,9 @@ class AED_Devices():
         **kwargs,
     ):
         strings = {i:[] for i in range(qr_code_type_count)}
-        string = ""
+        
         for qr_code_type in range(qr_code_type_count):
+
             if qr_code_type == 0:
                 strings[qr_code_type].append(
                     f'{qr_code_type};{len(self.devices)},{self.operator_name},{self.chip_name}'    

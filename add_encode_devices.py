@@ -24,20 +24,25 @@ class AED_Devices():
                 )
 
             elif qr_code_type == 1:
-                for folder_depth_count, folder_names in self.device_folder_names.keys():
-                    i = 0
-                    string = ""
-                    while (i < len(folder_names)):
+                for folder_depth_count, folder_names in self.device_folder_names.items():
+                    accumulated_string = ""
+                    for i in range(len(folder_names)):
+                        string_header = f'{qr_code_type};{folder_depth_count},{i}'
                         if string == "":
-                            string = f'{qr_code_type};{folder_depth_count},{i}'
-                        string_ = f',{folder_names[i]}'
-                        if len(string + string_ + 1) > char_count_limit: # +1 is for ";"
-                            strings[qr_code_type].append(f"{string};")
-                            string = ""
-                            continue
+                            current_string = f',{folder_names[i]}'
+                        if i == len(folder_names)-1: # last element
+                            # not within char_count_limit, split and append individually
+                            if len(string_header + accumulated_string + current_string + 1) > char_count_limit: # +1 is for ";"    
+                                strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                strings[qr_code_type].append(f"{string_header}{current_string};")
+                            else: # within char_count_limit
+                                string += string_
                         else:
-                            string += string_
-                            i += 1
+                            if len(string_header + accumulated_string + current_string + 1) > char_count_limit: # +1 is for ";"    
+                                strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                accumulated_string = current_string
+                            else: # within char_count_limit
+                                accumulated_string += current_string
 
             elif qr_code_type == 2:
                 i = 0
@@ -82,7 +87,7 @@ class AED_Devices():
             elif qr_code_type == 4:
                 i = 0
                 string = ""
-                for folder_depth_count, folder_names in self.process_folder_names.keys():
+                for folder_depth_count, folder_names in self.process_folder_names.items():
                     while (i < len(folder_names)):
                         if string == "":
                             string = f'{qr_code_type};{folder_depth_count},{i},'

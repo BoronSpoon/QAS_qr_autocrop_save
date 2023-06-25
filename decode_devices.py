@@ -40,9 +40,12 @@ class DecodeDevices():
                 self.aruco_size[start_device_count:end_device_count][start_aruco_count:end_aruco_count]     = aruco_size
                 self.device_folder[start_device_count:end_device_count][start_aruco_count:end_aruco_count]  = [self.device_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
         elif qr_code_type == 3:
-            self.process_count = int(arg_dicts[1])
-            self.process_name  =     arg_dicts[2]
+            for i, arg_dict in enumerate(arg_dicts[1:]):
+                process_count = int(args[0])
+                process_name  =     args[1]
+                self.processes[process_count] = process_name
         elif qr_code_type == 4:
+            process_count = int(arg_dicts[0].split(",")[1])
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 args = arg_dict.split(",")
                 folder_depth_count = int(args[0])
@@ -50,6 +53,7 @@ class DecodeDevices():
                 folder_names       =     args[2:]
                 self.process_folder_names[folder_depth_count][start_index:start_index+len(folder_names)] = folder_names
         elif qr_code_type == 5:
+            process_count = int(arg_dicts[0].split(",")[1])
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 args = arg_dict.split(",")
                 start_device_count         = int(args[0])

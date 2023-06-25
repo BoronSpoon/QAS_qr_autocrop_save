@@ -76,9 +76,9 @@ class EncodeDevices():
             elif qr_code_type == 3:
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                for process_count, process in enumerate(self.processes):
+                for process_count, process_name in enumerate(self.processes):
                     current_string = "".join([
-                        f'{process_count},{process["name"]};',
+                        f'{process_count},{process_name};',
                     ])
 
                     if process_count == len(self.processes)-1: # last element

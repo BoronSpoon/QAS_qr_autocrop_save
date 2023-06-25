@@ -16,30 +16,30 @@ class AED_Devices():
         **kwargs,
     ):
         strings = {i:[] for i in range(qr_code_type_count)}
-        
+
         for qr_code_type in range(qr_code_type_count):
 
             if qr_code_type == 0:
                 strings[qr_code_type].append(
-                    f'{qr_code_type};{len(self.devices)},{self.operator_name},{self.chip_name}'    
+                    f'{qr_code_type};{len(self.devices)},{self.operator_name},{self.chip_name};'    
                 )
 
             elif qr_code_type == 1:
-                for folder_depth_count, folder_names in self.device_folder_names.items():
+                for folder_depth_count, folder_names in enumerate(self.device_folder_names):
                     accumulated_string = ""
                     string_header = f'{qr_code_type};{folder_depth_count},{0}'
                     for i in range(len(folder_names)):
                         current_string = f',{folder_names[i]}'
                         if i == len(folder_names)-1: # last element
                             # not within char_count_limit, split and append individually
-                            if len(string_header + accumulated_string + current_string + 1) > char_count_limit: # +1 is for ";"    
+                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
                                 strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{folder_depth_count},{i}'
                                 strings[qr_code_type].append(f"{string_header}{current_string};")
                             else: # within char_count_limit
                                 strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
                         else:
-                            if len(string_header + accumulated_string + current_string + 1) > char_count_limit: # +1 is for ";"    
+                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
                                 strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{folder_depth_count},{i}'
                                 accumulated_string = current_string
@@ -47,12 +47,8 @@ class AED_Devices():
                                 accumulated_string += current_string
 
             elif qr_code_type == 2:
-                i = 0
-                j = 0
-                accumulated_string_len = 0
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                string_header_len = len(string_header)
                 for i in range(len(self.devices)):
                     for j in range(len(self.device_aruco)):
                         current_string = "".join([
@@ -63,32 +59,44 @@ class AED_Devices():
                             f'{self.device_aruco[i][j]["aruco_size"]},',
                             f'{",".join([i for i in self.devices[i]["folder_count_at_each_depth"]])};',
                         ])
-                        current_string_len = len(current_string)
 
                     if i == len(self.devices)-1 and j == len(self.device_aruco)-1: # last element
-                        if accumulated_string_len + current_string_len > char_count_limit: # not within char_count_limit, split and append individually
+                        if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                             strings[qr_code_type].append(string_header + accumulated_string)
                             strings[qr_code_type].append(string_header + current_string)
                         else: # within char_count_limit
                             strings[qr_code_type].append(string_header + accumulated_string + current_string)
                     else: 
-                        if accumulated_string_len + current_string_len > char_count_limit:  # not within char_count_limit, split and append the one within limit
+                        if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
                             strings[qr_code_type].append(string_header + accumulated_string)
-                            accumulated_string_len = current_string_len
                             accumulated_string = current_string
                         else:
-                            accumulated_string_len += current_string_len
                             accumulated_string += current_string
 
             elif qr_code_type == 3:
+                accumulated_string = ""
+                string_header = f"{qr_code_type};"
                 for process_count, process in enumerate(self.processes):
-                    strings[qr_code_type].append(
-                        f'{qr_code_type};{process_count},{process["name"]}'
-                    )
+                    current_string = "".join([
+                        f'{process_count},{process["name"]};',
+                    ])
+
+                    if process_count == len(self.processes)-1: # last element
+                        if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
+                            strings[qr_code_type].append(string_header + accumulated_string)
+                            strings[qr_code_type].append(string_header + current_string)
+                        else: # within char_count_limit
+                            strings[qr_code_type].append(string_header + accumulated_string + current_string)
+                    else: 
+                        if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
+                            strings[qr_code_type].append(string_header + accumulated_string)
+                            accumulated_string = current_string
+                        else:
+                            accumulated_string += current_string
 
             elif qr_code_type == 4:
                 for process_count in len(self.process_folder_names): # process
-                    for folder_depth_count, folder_names in self.process_folder_names[process_count].items():
+                    for folder_depth_count, folder_names in enumerate(self.process_folder_names[process_count]):
                         accumulated_string = ""
                         string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
                         for i in range(len(folder_names)):
@@ -110,33 +118,27 @@ class AED_Devices():
                                     accumulated_string += current_string
 
             elif qr_code_type == 5:
-                i = 0                
-                accumulated_string_len = 0
                 accumulated_string = ""
                 for j in range(len(self.devices[0])): # number of processes
                     for i in range(len(self.devices)): # number of devices
                         if i == 0: # create new QR code at new process
                             string_header = f"{qr_code_type},{j};"
-                            string_header_len = len(string_header)
                         else:
                             current_string = "".join([
                                 f'{i},{i+1},',
                                 f'{",".join([i for i in self.processes[i][j]["folder_count_at_each_depth"]])};',
                             ])
-                            current_string_len = len(current_string)
                         if j == len(self.devices[0])-1 and i == len(self.devices)-1: # last element
-                            if string_header_len + accumulated_string_len + current_string_len > char_count_limit: # not within char_count_limit, split and append individually
+                            if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                                 strings[qr_code_type].append(string_header + accumulated_string)
                                 strings[qr_code_type].append(string_header + current_string)
                             else: # within char_count_limit
                                 strings[qr_code_type].append(string_header + accumulated_string + current_string)
                         else: 
-                            if string_header_len + accumulated_string_len + current_string_len > char_count_limit:  # not within char_count_limit, split and append the one within limit
+                            if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
                                 strings[qr_code_type].append(string_header + accumulated_string)
-                                accumulated_string_len = current_string_len
                                 accumulated_string = current_string
                             else:
-                                accumulated_string_len += current_string
                                 accumulated_string += current_string
         
         return strings

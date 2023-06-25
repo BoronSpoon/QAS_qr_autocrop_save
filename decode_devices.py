@@ -1,10 +1,10 @@
 class DecodeDevices():
-    def __init__():
-        pass
-
+    def __init__(self, ):
+        self.process_folder_names = 
+        
     def decode_qr(
         self,
-        string, 
+        string,
     ):
         arg_dicts = string.split(";")
         qr_code_type = int(arg_dicts[0].split(",")[0])
@@ -51,7 +51,7 @@ class DecodeDevices():
                 folder_depth_count = int(args[0])
                 start_index        = int(args[1])
                 folder_names       =     args[2:]
-                self.process_folder_names[folder_depth_count][start_index:start_index+len(folder_names)] = folder_names
+                self.process_folder_names[process_count][folder_depth_count][start_index:start_index+len(folder_names)] = folder_names
         elif qr_code_type == 5:
             process_count = int(arg_dicts[0].split(",")[1])
             for i, arg_dict in enumerate(arg_dicts[1:]):
@@ -59,9 +59,9 @@ class DecodeDevices():
                 start_device_count         = int(args[0])
                 end_device_count           = int(args[1])
                 folder_count_at_each_depth =     args[2:]
-                self.process_folder_names[start_device_count:end_device_count] = [self.process_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
+                self.process_folder_names[process_count][start_device_count:end_device_count] = [self.process_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
         
         return string
 
     if __name__ == "__main__":
-        string = decode_qr(qr_code_type = 0)
+        string = decode_qr()

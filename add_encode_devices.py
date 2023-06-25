@@ -1,15 +1,31 @@
+# format rule
+# use range(len(arg)) because arg can be list or dict
 class EncodeDevices():
-    def __init__():
-        pass
+    def __init__(self):
+        self.operator_name = "Placeholder Operator Name"
+        self.chip_name = "Placeholder Chip Name"
+        self.devices = {}
+        self.device_aruco = {}
+        self.device_folder_names = {}
+        self.process_folder_names = {}
+        self.processes = {}
+        self.device_count = 0
+        self.process_count = 0
+
     def add_device(
         self,
+        folder_name,
     ):
-        pass
+        self.devices[self.device_count] = 
+        self.device_count += 1
+        for folder_depth_count in range(len(folder_name)):
+            self.device_folder_names[folder_depth_count] = folder_name[folder_depth_count]
+
     def add_process(
         self,
     ):
         pass
-    def encode_qr(
+    def encode_qrs(
         self,
         qr_code_type_count = 6,
         char_count_limit = 108,
@@ -25,7 +41,8 @@ class EncodeDevices():
                 )
 
             elif qr_code_type == 1:
-                for folder_depth_count, folder_names in enumerate(self.device_folder_names):
+                for folder_depth_count in range(len(self.device_folder_names)):
+                    folder_names = self.device_folder_names[folder_depth_count]
                     accumulated_string = ""
                     string_header = f'{qr_code_type};{folder_depth_count},{0}'
                     for i in range(len(folder_names)):
@@ -76,7 +93,8 @@ class EncodeDevices():
             elif qr_code_type == 3:
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                for process_count, process_name in enumerate(self.processes):
+                for process_count in range(len(self.processes)):
+                    process_name = self.processes[process_count]
                     current_string = "".join([
                         f'{process_count},{process_name};',
                     ])
@@ -95,8 +113,9 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 4:
-                for process_count in len(self.process_folder_names): # process
-                    for folder_depth_count, folder_names in enumerate(self.process_folder_names[process_count]):
+                for process_count in range(len(self.process_folder_names)): # process
+                    for folder_depth_count in range(len(self.process_folder_names[process_count])):
+                        folder_names = self.process_folder_names[process_count][folder_depth_count]
                         accumulated_string = ""
                         string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
                         for i in range(len(folder_names)):
@@ -144,4 +163,4 @@ class EncodeDevices():
         return strings
     
     if __name__ == "__main__":
-        strings = encode_qr(qr_code_type = 0)
+        strings = encode_qrs(qr_code_type = 0)

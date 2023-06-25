@@ -1,4 +1,4 @@
-class AED_Devices():
+class EncodeDevices():
     def __init__():
         pass
     def add_device(

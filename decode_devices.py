@@ -1,4 +1,4 @@
-class AED_Devices():
+class DecodeDevices():
     def __init__():
         pass
 
@@ -7,10 +7,9 @@ class AED_Devices():
         string, 
     ):
         arg_dicts = string.split(";")
-        qr_code_type = int(arg_dicts[0])
-        arg_dict = arg_dicts[1]
-        args = arg_dict.split(",")
+        qr_code_type = int(arg_dicts[0].split(",")[0])
         if qr_code_type == 0:
+            args = arg_dicts[1].split(",")
             self.total_device_count = int(args[0])
             self.operator_name      =     args[1]
             self.chip_name          =     args[2]
@@ -61,4 +60,4 @@ class AED_Devices():
         return string
 
     if __name__ == "__main__":
-        string = encode_qr(qr_code_type = 0)
+        string = decode_qr(qr_code_type = 0)

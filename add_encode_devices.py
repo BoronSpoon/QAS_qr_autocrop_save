@@ -28,8 +28,11 @@ class EncodeDevices():
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
         print(f"devices = {self.devices}")
-        print(f"device_aruco = {self.device_aruco}")
-        print(f"device_folder_names = {self.device_folder_names}")
+        print(f"device_x_lens = {self.device_x_lens}")
+        print(f"device_y_lens = {self.device_y_lens}")
+        print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
+        print(f"device_aruco_y_offsets = {self.device_aruco_y_offsets}")
+        print(f"device_aruco_sizes = {self.device_aruco_sizes}")
         print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
@@ -58,10 +61,11 @@ class EncodeDevices():
             self.device_aruco_y_offsets[self.device_count][aruco_count] = aruco_y_offsets[aruco_count]
             self.device_aruco_sizes[self.device_count][aruco_count] = aruco_sizes[aruco_count]
 
+        self.devices[self.device_count] = []
         for folder_depth_count in range(len(device_folder_names)):
             if device_folder_names[folder_depth_count] not in self.device_folder_names:
                 self.device_folder_names.append(device_folder_names[folder_depth_count])
-            self.devices[folder_depth_count].append(self.device_folder_names.index(device_folder_names[folder_depth_count]))
+            self.devices[self.device_count].append(self.device_folder_names.index(device_folder_names[folder_depth_count]))
             
         self.processes[self.device_count] = {}
         for process_count in range(len(process_folder_names[0])):
@@ -167,38 +171,35 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 4:
-                for device_count in range(len(self.process_folder_names)): # process
-                    for process_count in range(len(self.process_folder_names[0])):
-                        for folder_depth_count in range(len(self.process_folder_names[0][0])):
-                            accumulated_string = ""
-                            string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
-                            for i in range(len(self.process_folder_names)):
-                                current_string = f',{self.process_folder_names[i]}'
-                                if i == len(self.process_folder_names)-1: # last element
-                                    # not within char_count_limit, split and append individually
-                                    if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                        strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                        string_header = f'{qr_code_type};{folder_depth_count},{i}'
-                                        strings[qr_code_type].append(f"{string_header}{current_string};")
-                                    else: # within char_count_limit
-                                        strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
-                                else:
-                                    if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                        strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                        string_header = f'{qr_code_type};{folder_depth_count},{i}'
-                                        accumulated_string = current_string
-                                    else: # within char_count_limit
-                                        accumulated_string += current_string
+                accumulated_string = ""
+                string_header = f'{qr_code_type},{process_count};{0}'
+                for i in range(len(self.process_folder_names)):
+                    current_string = f',{self.process_folder_names[i]}'
+                    if i == len(self.process_folder_names)-1: # last element
+                        # not within char_count_limit, split and append individually
+                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                            strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            string_header = f'{qr_code_type};{i}'
+                            strings[qr_code_type].append(f"{string_header}{current_string};")
+                        else: # within char_count_limit
+                            strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                    else:
+                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                            strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            string_header = f'{qr_code_type};{i}'
+                            accumulated_string = current_string
+                        else: # within char_count_limit
+                            accumulated_string += current_string
 
             elif qr_code_type == 5:
                 accumulated_string = ""
-                for j in range(len(self.devices[0])): # number of processes
-                    for i in range(len(self.devices)): # number of devices
-                        if i == 0: # create new QR code at new process
+                for process_count in range(len(self.processes[0])):
+                    for device_count in range(len(self.processes)):
+                        if device_count == 0: # create new QR code at new process
                             string_header = f"{qr_code_type},{j};"
                         current_string = "".join([
                             f'{i},{i+1},',
-                            f'{",".join([str(i) for i in self.processes[i][j]])};',
+                            f'{",".join([str(i) for i in self.processes[device_count][process_count]])};',
                         ])
                         if j == len(self.devices[0])-1 and i == len(self.devices)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually

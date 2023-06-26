@@ -23,9 +23,28 @@ class EncodeDevices():
         self,
         device_folder_names, # list of names of folder from parent to children
         process_folder_names, # list of names of folder from parent to children
+        device_x_len, 
+        device_y_len, 
+        aruco_x_offsets, 
+        aruco_y_offsets, 
+        aruco_sizes, 
     ):
         if self.device_count not in self.devices.keys():
-            self.devices[self.device_count] = {}
+            self.devices[self.device_count] = {
+                "x_len": device_x_len,
+                "y_len": device_y_len,
+            }
+        if self.device_count not in self.device_aruco.keys():
+            self.device_aruco[self.device_count] = {}
+            for i in range(min(len(aruco_x_offsets), len(aruco_y_offsets), len(aruco_sizes))):
+                aruco_x_offset = aruco_x_offsets[i]
+                aruco_y_offset = aruco_y_offsets[i]
+                aruco_size = aruco_sizes[i]
+                self.device_aruco[self.device_count][i] = {
+                    "y_offset": aruco_x_offset,
+                    "y_offset": aruco_y_offset,
+                    "y_size": aruco_size,
+                }
         self.device_count += 1
         if folder_depth_count not in self.device_folder_names.keys():
             self.device_folder_names[folder_depth_count] = []    

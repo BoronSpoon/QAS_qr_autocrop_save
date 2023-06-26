@@ -34,6 +34,7 @@ class EncodeDevices():
                 "x_len": device_x_len,
                 "y_len": device_y_len,
             }
+
         if self.device_count not in self.device_aruco.keys():
             self.device_aruco[self.device_count] = {}
             for i in range(min(len(aruco_x_offsets), len(aruco_y_offsets), len(aruco_sizes))):
@@ -45,9 +46,8 @@ class EncodeDevices():
                     "y_offset": aruco_y_offset,
                     "y_size": aruco_size,
                 }
-        self.device_count += 1
-        if folder_depth_count not in self.device_folder_names.keys():
-            self.device_folder_names[folder_depth_count] = []    
+
+        self.device_count += 1 
         for folder_depth_count in range(len(device_folder_names)):
             if folder_depth_count not in self.device_folder_names.keys():
                 self.device_folder_names[folder_depth_count] = []
@@ -57,10 +57,8 @@ class EncodeDevices():
         for process_count in range(len(process_folder_names)):
             if process_count not in self.process_folder_names.keys():
                 self.process_folder_names[process_count] = {}
-            if folder_depth_count not in self.process_folder_names[process_count].keys():
-                self.process_folder_names[process_count][folder_depth_count] = []
             for folder_depth_count in range(len(process_folder_names)):
-                if folder_depth_count not in self.process_folder_names.keys():
+                if folder_depth_count not in self.process_folder_names[process_count].keys():
                     self.process_folder_names[process_count][folder_depth_count] = []
                 if process_folder_names[folder_depth_count] not in self.process_folder_names[process_count][folder_depth_count]:
                     self.process_folder_names[process_count][folder_depth_count].append(process_folder_names[folder_depth_count])
@@ -204,5 +202,26 @@ class EncodeDevices():
         
         return strings
     
-    if __name__ == "__main__":
-        strings = encode_qrs(qr_code_type = 0)
+if __name__ == "__main__":
+    ed = EncodeDevices(
+        operator_name = "Placeholder Operator Name",
+        chip_name = "Placeholder Chip Name",
+        processes = ["EB", "MLE"]
+    )
+    ed.add_device(
+        device_folder_names = [
+            ["mzi", "coplanar"]
+        ],
+        process_folder_names = [
+            ["110uC/cm^2", "mzi", "1mm"],
+            ["25%", "coplanar"],
+        ],
+        device_x_len = 100,
+        device_y_len = 10,
+        aruco_x_offsets = [0],
+        aruco_y_offsets = [0],
+        aruco_sizes = [20],
+    )
+    strings = ed.encode_qrs(
+
+    )

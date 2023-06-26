@@ -1,36 +1,56 @@
 # format rule
 # use range(len(arg)) because arg can be list or dict
 class EncodeDevices():
-    def __init__(self):
-        self.operator_name = "Placeholder Operator Name"
-        self.chip_name = "Placeholder Chip Name"
+    def __init__(
+            self,
+            operator_name = "Placeholder Operator Name",
+            chip_name = "Placeholder Chip Name",
+            processes = [],
+        ):
+        self.operator_name = operator_name
+        self.chip_name = chip_name
         self.devices = {}
         self.device_aruco = {}
         self.device_folder_names = {}
         self.process_folder_names = {}
         self.processes = {}
+        for i in range(len(processes)):
+            self.processes[i] = processes[i]
         self.device_count = 0
         self.process_count = 0
 
     def add_device(
         self,
-        folder_name,
+        device_folder_names, # list of names of folder from parent to children
+        process_folder_names, # list of names of folder from parent to children
     ):
-        self.devices[self.device_count] = 
+        if self.device_count not in self.devices.keys():
+            self.devices[self.device_count] = {}
         self.device_count += 1
-        for folder_depth_count in range(len(folder_name)):
-            self.device_folder_names[folder_depth_count] = folder_name[folder_depth_count]
+        if folder_depth_count not in self.device_folder_names.keys():
+            self.device_folder_names[folder_depth_count] = []    
+        for folder_depth_count in range(len(device_folder_names)):
+            if folder_depth_count not in self.device_folder_names.keys():
+                self.device_folder_names[folder_depth_count] = []
+            if device_folder_names[folder_depth_count] not in self.device_folder_names[folder_depth_count]:
+                self.device_folder_names[folder_depth_count].append(device_folder_names[folder_depth_count])
+                
+        if folder_depth_count not in self.process_folder_names.keys():
+            self.process_folder_names[folder_depth_count] = []    
+        for folder_depth_count in range(len(process_folder_names)):
+            if folder_depth_count not in self.process_folder_names.keys():
+                self.process_folder_names[folder_depth_count] = []
+            if process_folder_names[folder_depth_count] not in self.process_folder_names[folder_depth_count]:
+                self.process_folder_names[folder_depth_count].append(process_folder_names[folder_depth_count])
 
-    def add_process(
-        self,
-    ):
-        pass
     def encode_qrs(
         self,
         qr_code_type_count = 6,
         char_count_limit = 108,
         **kwargs,
     ):
+        self.device_count = len(self.devices)
+        self.process_count = len(self.processes)
         strings = {i:[] for i in range(qr_code_type_count)}
 
         for qr_code_type in range(qr_code_type_count):
@@ -71,10 +91,10 @@ class EncodeDevices():
                         current_string = "".join([
                             f'{i},{i+1},',
                             f'{j},{j+1},',
-                            f'{self.devices[i]["device_x_len"]},{self.devices[i]["device_y_len"]},',
-                            f'{self.device_aruco[i][j]["aruco_x_offset"]},{self.device_aruco[i][j]["aruco_y_offset"]},',
-                            f'{self.device_aruco[i][j]["aruco_size"]},',
-                            f'{",".join([i for i in self.devices[i]["folder_count_at_each_depth"]])};',
+                            f'{self.devices[i]["x_len"]},{self.devices[i]["y_len"]},',
+                            f'{self.device_aruco[i][j]["x_offset"]},{self.device_aruco[i][j]["y_offset"]},',
+                            f'{self.device_aruco[i][j]["size"]},',
+                            f'{",".join([i for i in self.device_folder_names[i]])};',
                         ])
 
                     if i == len(self.devices)-1 and j == len(self.device_aruco)-1: # last element

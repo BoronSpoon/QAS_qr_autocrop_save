@@ -124,18 +124,18 @@ class EncodeDevices():
             elif qr_code_type == 2:
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                for i in range(len(self.devices)):
-                    for j in range(len(self.device_aruco)):
+                for device_count in range(len(self.device_x_lens)):
+                    for aruco_count in range(len(self.device_aruco_x_offsets)):
                         current_string = "".join([
-                            f'{i},{i+1},',
-                            f'{j},{j+1},',
-                            f'{self.devices[i]["x_len"]},{self.devices[i]["y_len"]},',
-                            f'{self.device_aruco[i][j]["x_offset"]},{self.device_aruco[i][j]["y_offset"]},',
-                            f'{self.device_aruco[i][j]["size"]},',
-                            f'{",".join([i for i in self.device_folder_names[i]])};',
+                            f'{device_count},{device_count+1},',
+                            f'{aruco_count},{aruco_count+1},',
+                            f'{self.device_x_lens[device_count]},{self.device_y_lens[device_count]},',
+                            f'{self.device_aruco_x_offsets[device_count][aruco_count]},{self.device_aruco_y_offsets[device_count][aruco_count]},',
+                            f'{self.device_aruco_sizes[device_count][aruco_count]},',
+                            f'{",".join([str(i) for i in self.devices])};',
                         ])
 
-                    if i == len(self.devices)-1 and j == len(self.device_aruco)-1: # last element
+                    if device_count == len(self.device_x_lens)-1 and aruco_count == len(self.device_aruco_x_offsets)-1: # last element
                         if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                             strings[qr_code_type].append(string_header + accumulated_string)
                             strings[qr_code_type].append(string_header + current_string)
@@ -196,12 +196,12 @@ class EncodeDevices():
                 for process_count in range(len(self.processes[0])):
                     for device_count in range(len(self.processes)):
                         if device_count == 0: # create new QR code at new process
-                            string_header = f"{qr_code_type},{j};"
+                            string_header = f"{qr_code_type},{process_count};"
                         current_string = "".join([
-                            f'{i},{i+1},',
+                            f'{device_count},{device_count+1},',
                             f'{",".join([str(i) for i in self.processes[device_count][process_count]])};',
                         ])
-                        if j == len(self.devices[0])-1 and i == len(self.devices)-1: # last element
+                        if process_count == len(self.processes[0])-1 and device_count == len(self.processes)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                                 strings[qr_code_type].append(string_header + accumulated_string)
                                 strings[qr_code_type].append(string_header + current_string)

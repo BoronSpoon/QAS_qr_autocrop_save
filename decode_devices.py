@@ -8,8 +8,8 @@ class DecodeDevices():
         self.device_aruco_x_offsets = {}
         self.device_aruco_y_offsets = {}
         self.device_aruco_sizes = {}
-        self.device_folder_names = []
-        self.process_folder_names = []
+        self.device_folder_names = {}
+        self.process_folder_names = {}
         self.processes = {}
         self.process_names = {}
         self.device_count = 0
@@ -19,8 +19,11 @@ class DecodeDevices():
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
         print(f"devices = {self.devices}")
-        print(f"device_aruco = {self.device_aruco}")
-        print(f"device_folder_names = {self.device_folder_names}")
+        print(f"device_x_lens = {self.device_x_lens}")
+        print(f"device_y_lens = {self.device_y_lens}")
+        print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
+        print(f"device_aruco_y_offsets = {self.device_aruco_y_offsets}")
+        print(f"device_aruco_sizes = {self.device_aruco_sizes}")
         print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
@@ -43,11 +46,9 @@ class DecodeDevices():
                     args = arg_dict.split(",")
                     start_index        = int(args[0])
                     folder_names       =     args[1:]
-                    if folder_depth_count not in self.device_folder_names.keys():
-                        self.device_folder_names = {}
-                    for index in range(start_index,start_index+len(folder_names)):
-                        self.device_folder_names[folder_depth_count][index] = folder_names
-                        
+                    for index in range(len(folder_names)):
+                        self.device_folder_names[start_index + index] = folder_names[index]
+
         elif qr_code_type == 2:
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
@@ -70,13 +71,13 @@ class DecodeDevices():
                         self.device_folder_names[device_count] = {
                             i: folder_count for (i, folder_count) in enumerate(folder_count_at_each_depth)
                         }
-                        self.device_aruco[device_count] = {}
+                        self.device_aruco_x_offsets[device_count] = {}
+                        self.device_aruco_y_offsets[device_count] = {}
+                        self.device_aruco_sizes[device_count] = {}
                         for aruco_count in range(start_aruco_count,end_aruco_count):
-                            self.device_aruco[device_count][aruco_count] = {
-                                "x_offset": aruco_x_offset,
-                                "y_offset": aruco_y_offset,
-                                "size": aruco_size,
-                            }
+                            self.device_aruco_x_offsets[device_count][aruco_count] = aruco_x_offset
+                            self.device_aruco_y_offsets[device_count][aruco_count] = aruco_y_offset
+                            self.device_aruco_sizes[device_count][aruco_count] = aruco_size
                     
         elif qr_code_type == 3:
             for i, arg_dict in enumerate(arg_dicts[1:]):
@@ -93,13 +94,10 @@ class DecodeDevices():
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
                     args = arg_dict.split(",")
-                    folder_depth_count = int(args[0])
-                    start_index        = int(args[1])
-                    folder_names       =     args[2:]
-                    if folder_depth_count not in self.process_folder_names[process_count].keys():
-                        self.process_folder_names[process_count][folder_depth_count] = {}
+                    start_index        = int(args[0])
+                    folder_names       =     args[1:]
                     for index in range(len(folder_names)):
-                        self.process_folder_names[process_count][folder_depth_count][start_index + index] = folder_names[index]
+                        self.process_folder_names[process_count][start_index + index] = folder_names[index]
 
         elif qr_code_type == 5:
             process_count = int(arg_dicts[0].split(",")[1])

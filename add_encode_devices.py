@@ -54,13 +54,16 @@ class EncodeDevices():
             if device_folder_names[folder_depth_count] not in self.device_folder_names[folder_depth_count]:
                 self.device_folder_names[folder_depth_count].append(device_folder_names[folder_depth_count])
                 
-        if folder_depth_count not in self.process_folder_names.keys():
-            self.process_folder_names[folder_depth_count] = []    
-        for folder_depth_count in range(len(process_folder_names)):
-            if folder_depth_count not in self.process_folder_names.keys():
-                self.process_folder_names[folder_depth_count] = []
-            if process_folder_names[folder_depth_count] not in self.process_folder_names[folder_depth_count]:
-                self.process_folder_names[folder_depth_count].append(process_folder_names[folder_depth_count])
+        for process_count in range(len(process_folder_names)):
+            if process_count not in self.process_folder_names.keys():
+                self.process_folder_names[process_count] = {}
+            if folder_depth_count not in self.process_folder_names[process_count].keys():
+                self.process_folder_names[process_count][folder_depth_count] = []
+            for folder_depth_count in range(len(process_folder_names)):
+                if folder_depth_count not in self.process_folder_names.keys():
+                    self.process_folder_names[process_count][folder_depth_count] = []
+                if process_folder_names[folder_depth_count] not in self.process_folder_names[process_count][folder_depth_count]:
+                    self.process_folder_names[process_count][folder_depth_count].append(process_folder_names[folder_depth_count])
 
     def encode_qrs(
         self,

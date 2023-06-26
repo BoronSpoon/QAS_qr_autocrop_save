@@ -11,6 +11,16 @@ class DecodeDevices():
         self.device_count = 0
         self.process_count = 0
         
+    def print(self):
+        print(f"operator_name = {self.operator_name}")
+        print(f"chip_name = {self.chip_name}")
+        print(f"devices = {self.devices}")
+        print(f"device_aruco = {self.device_aruco}")
+        print(f"device_folder_names = {self.device_folder_names}")
+        print(f"process_folder_names = {self.process_folder_names}")
+        print(f"process_names = {self.process_names}")
+        print(f"processes = {self.processes}")
+        
     def decode_qr(
         self,
         string,

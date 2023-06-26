@@ -250,3 +250,4 @@ if __name__ == "__main__":
     for key in strings.keys():
         for string in strings[key]:
             dd.decode_qr(string)
+    dd.print()

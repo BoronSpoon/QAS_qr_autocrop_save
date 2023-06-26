@@ -65,15 +65,17 @@ class EncodeDevices():
                 self.device_folder_names[folder_depth_count].append(device_folder_names[folder_depth_count])
 
         self.processes[self.device_count] = {}
-        for process_count in range(len(process_folder_names)):
-            if process_count not in self.process_folder_names.keys():
-                self.process_folder_names[process_count] = {}
-            for folder_depth_count in range(len(process_folder_names)):
-                folder_name = process_folder_names[process_count][folder_depth_count]
+        if self.device_count not in self.process_folder_names.keys():
+            self.process_folder_names[self.device_count] = {}
+        for process_count in range(len(process_folder_names[0])):
+            if process_count not in self.process_folder_names[self.device_count].keys():
+                self.process_folder_names[self.device_count][process_count] = {}
+            for folder_depth_count in range(len(process_folder_names[process_count])):
+                folder_name = process_folder_names[self.device_count][process_count][folder_depth_count]
                 if folder_depth_count not in self.process_folder_names[process_count].keys():
-                    self.process_folder_names[process_count][folder_depth_count] = []
+                    self.process_folder_names[self.device_count][process_count][folder_depth_count] = []
                 if folder_name not in self.process_folder_names[process_count][folder_depth_count]:
-                    self.process_folder_names[process_count][folder_depth_count].append(folder_name)
+                    self.process_folder_names[self.device_count][process_count][folder_depth_count].append(folder_name)
                 if folder_depth_count == 0:
                     self.processes[self.device_count][process_count] = []
                 self.processes[self.device_count][process_count].append(self.process_folder_names[process_count][folder_depth_count].index(folder_name))
@@ -173,31 +175,32 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 4:
-                for process_count in range(len(self.process_folder_names)): # process
-                    for folder_depth_count in range(len(self.process_folder_names[process_count])):
-                        folder_names = self.process_folder_names[process_count][folder_depth_count]
-                        accumulated_string = ""
-                        string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
-                        for i in range(len(folder_names)):
-                            if i == 0:
-                                current_string = f',{folder_names[i]}'
-                            else:
-                                current_string = f',{folder_names[i]}'
-                            if i == len(folder_names)-1: # last element
-                                # not within char_count_limit, split and append individually
-                                if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                    strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                    string_header = f'{qr_code_type};{folder_depth_count},{i}'
-                                    strings[qr_code_type].append(f"{string_header}{current_string};")
-                                else: # within char_count_limit
-                                    strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
-                            else:
-                                if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                    strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                    string_header = f'{qr_code_type};{folder_depth_count},{i}'
-                                    accumulated_string = current_string
-                                else: # within char_count_limit
-                                    accumulated_string += current_string
+                for device_count in range(len(self.process_folder_names)): # process
+                    for process_count in range(len(self.process_folder_names[0])):
+                        for folder_depth_count in range(len(self.process_folder_names[0][0])):
+                            folder_names = self.process_folder_names[device_count][process_count][folder_depth_count]
+                            accumulated_string = ""
+                            string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
+                            for i in range(len(folder_names)):
+                                if i == 0:
+                                    current_string = f',{folder_names[i]}'
+                                else:
+                                    current_string = f',{folder_names[i]}'
+                                if i == len(folder_names)-1: # last element
+                                    # not within char_count_limit, split and append individually
+                                    if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                                        strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                        string_header = f'{qr_code_type};{folder_depth_count},{i}'
+                                        strings[qr_code_type].append(f"{string_header}{current_string};")
+                                    else: # within char_count_limit
+                                        strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                                else:
+                                    if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                                        strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                        string_header = f'{qr_code_type};{folder_depth_count},{i}'
+                                        accumulated_string = current_string
+                                    else: # within char_count_limit
+                                        accumulated_string += current_string
 
             elif qr_code_type == 5:
                 accumulated_string = ""
@@ -231,10 +234,42 @@ if __name__ == "__main__":
         process_names = ["EB", "MLE"],
     )
     ed.add_device(
-        device_folder_names = ["mzi", "coplanar"],
-        process_folder_names = [
-            ["110uC/cm^2", "mzi", "1mm"],
-            ["25%", "coplanar"],
+        device_folder_names = [
+            ["mzi", "coplanar"],
+            ["mzi", "coplanar"],
+            ["mzi", "coplanar"],
+            ["mzi", "coplanar"],
+            ["mzi", "single_line"],
+            ["mzi", "single_line"],
+            ["mzi", "single_line"],
+            ["mzi", "single_line"],
+        ],
+        process_folder_names = [ # [device, process, folder_depth]
+            [
+                ["100uC/cm^2", "mzi", "1mm"],
+                ["25%", "gap (um)", "2"], 
+            ], [
+                ["110uC/cm^2", "mzi", "1mm"],
+                ["25%", "gap (um)", "2"], 
+            ], [
+                ["120uC/cm^2", "mzi", "1mm"],
+                ["25%", "gap (um)", "1"], 
+            ], [
+                ["130uC/cm^2", "mzi", "1mm"],
+                ["25%", "gap (um)", "1"], 
+            ], [
+                ["100uC/cm^2", "mzi", "0.5mm"],
+                ["25%", "width (um)", "1"], 
+            ], [
+                ["110uC/cm^2", "mzi", "0.5mm"],
+                ["25%", "width (um)", "2"], 
+            ], [
+                ["120uC/cm^2", "mzi", "0.5mm"],
+                ["25%", "width (um)", "4"], 
+            ], [
+                ["130uC/cm^2", "mzi", "0.5mm"],
+                ["25%", "width (um)", "8"], 
+            ],
         ],
         device_x_len = 100,
         device_y_len = 10,

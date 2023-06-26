@@ -20,7 +20,7 @@ class DecodeDevices():
         print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
-        
+
     def decode_qr(
         self,
         string,
@@ -66,18 +66,13 @@ class DecodeDevices():
                         self.device_folder_names[device_count] = {
                             i: folder_count for (i, folder_count) in enumerate(folder_count_at_each_depth)
                         }
-                        self.device_aruco[device_count] = {
-                            "x_offset": {},
-                            "y_offset": {},
-                            "size": {},
-                        }
+                        self.device_aruco[device_count] = {}
                         for aruco_count in range(start_aruco_count,end_aruco_count):
                             self.device_aruco[device_count][aruco_count] = {
                                 "x_offset": aruco_x_offset,
                                 "y_offset": aruco_y_offset,
                                 "size": aruco_size,
                             }
-
                     
         elif qr_code_type == 3:
             for i, arg_dict in enumerate(arg_dicts[1:]):

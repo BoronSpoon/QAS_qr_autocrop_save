@@ -77,8 +77,9 @@ class DecodeDevices():
         elif qr_code_type == 3:
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
-                    process_count = int(arg_dict[0])
-                    process_name  =     arg_dict[1]
+                    args = arg_dict.split(",")
+                    process_count = int(args[0])
+                    process_name  =     args[1]
                     self.process_names[process_count] = process_name
 
         elif qr_code_type == 4:
@@ -107,7 +108,10 @@ class DecodeDevices():
                     end_device_count           = int(args[1])
                     folder_count_at_each_depth = [int(i) for i in args[2:]]
                     for device_count in range(start_device_count,end_device_count):
-                        self.processes[process_count][device_count] = [self.process_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
+                        self.processes[process_count][device_count] = [
+                            self.process_folder_names[device_count][folder_depth][folder_count]
+                            for (folder_depth, folder_count) in enumerate(folder_count_at_each_depth)
+                        ]
         
         return string
 

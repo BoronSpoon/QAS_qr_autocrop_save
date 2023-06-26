@@ -27,7 +27,7 @@ class DecodeDevices():
                 folder_depth_count = int(args[0])
                 start_index        = int(args[1])
                 folder_names       =     args[2:]
-                if index not in self.device_folder_names[folder_depth_count].keys():
+                if folder_depth_count not in self.device_folder_names.keys():
                     self.device_folder_names[folder_depth_count] = {}
                 for index in range(start_index,start_index+len(folder_names)):
                     self.device_folder_names[folder_depth_count][index] = folder_names

@@ -58,7 +58,6 @@ class EncodeDevices():
                     "size": aruco_size,
                 }
 
-        self.device_count += 1 
         for folder_depth_count in range(len(device_folder_names)):
             if folder_depth_count not in self.device_folder_names.keys():
                 self.device_folder_names[folder_depth_count] = []
@@ -76,9 +75,11 @@ class EncodeDevices():
                 if folder_name not in self.process_folder_names[process_count][folder_depth_count]:
                     self.process_folder_names[process_count][folder_depth_count].append(folder_name)
                 if folder_depth_count == 0:
-                    self.processes[self.device_count][process_count] = {}
-                self.processes[self.device_count][process_count][folder_depth_count] = self.process_folder_names[process_count][folder_depth_count].index(folder_name)
+                    self.processes[self.device_count][process_count] = []
+                self.processes[self.device_count][process_count].append(self.process_folder_names[process_count][folder_depth_count].index(folder_name))
 
+        self.device_count += 1 
+        
     def encode_qrs(
         self,
         qr_code_type_count = 6,
@@ -241,7 +242,7 @@ if __name__ == "__main__":
         aruco_y_offsets = [0],
         aruco_sizes = [20],
     )
-    #ed.print()
+    ed.print()
     strings = ed.encode_qrs()
     print(strings)
     from decode_devices import DecodeDevices

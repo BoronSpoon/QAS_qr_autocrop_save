@@ -11,8 +11,8 @@ class EncodeDevices():
         self.chip_name = chip_name
         self.devices = {}
         self.device_aruco = {}
-        self.device_folder_names = {}
-        self.process_folder_names = {}
+        self.device_folder_names = []
+        self.process_folder_names = []
         self.processes = {}
         self.process_names = {}
         for i in range(len(process_names)):
@@ -59,8 +59,6 @@ class EncodeDevices():
                 }
 
         for folder_depth_count in range(len(device_folder_names)):
-            if folder_depth_count not in self.device_folder_names.keys():
-                self.device_folder_names[folder_depth_count] = []
             if device_folder_names[folder_depth_count] not in self.device_folder_names[folder_depth_count]:
                 self.device_folder_names[folder_depth_count].append(device_folder_names[folder_depth_count])
 
@@ -72,13 +70,13 @@ class EncodeDevices():
                 self.process_folder_names[self.device_count][process_count] = {}
             for folder_depth_count in range(len(process_folder_names[process_count])):
                 folder_name = process_folder_names[self.device_count][process_count][folder_depth_count]
-                if folder_depth_count not in self.process_folder_names[process_count].keys():
+                if folder_depth_count not in self.process_folder_names[self.device_count][process_count].keys():
                     self.process_folder_names[self.device_count][process_count][folder_depth_count] = []
-                if folder_name not in self.process_folder_names[process_count][folder_depth_count]:
+                if folder_name not in self.process_folder_names[self.device_count][process_count][folder_depth_count]:
                     self.process_folder_names[self.device_count][process_count][folder_depth_count].append(folder_name)
                 if folder_depth_count == 0:
                     self.processes[self.device_count][process_count] = []
-                self.processes[self.device_count][process_count].append(self.process_folder_names[process_count][folder_depth_count].index(folder_name))
+                self.processes[self.device_count][process_count].append(self.process_folder_names[self.device_count][process_count][folder_depth_count].index(folder_name))
 
         self.device_count += 1 
         

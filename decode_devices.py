@@ -1,11 +1,15 @@
 class DecodeDevices():
     def __init__(self, ):
-        self.operator_name = "Placeholder Operator Name"
+        self.operator_name = "Placeholder Operator Name",
         self.chip_name = "Placeholder Chip Name"
         self.devices = {}
-        self.device_aruco = {}
-        self.device_folder_names = {}
-        self.process_folder_names = {}
+        self.device_x_lens = {}
+        self.device_y_lens = {}
+        self.device_aruco_x_offsets = {}
+        self.device_aruco_y_offsets = {}
+        self.device_aruco_sizes = {}
+        self.device_folder_names = []
+        self.process_folder_names = []
         self.processes = {}
         self.process_names = {}
         self.device_count = 0
@@ -37,13 +41,13 @@ class DecodeDevices():
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
                     args = arg_dict.split(",")
-                    folder_depth_count = int(args[0])
-                    start_index        = int(args[1])
-                    folder_names       =     args[2:]
+                    start_index        = int(args[0])
+                    folder_names       =     args[1:]
                     if folder_depth_count not in self.device_folder_names.keys():
-                        self.device_folder_names[folder_depth_count] = {}
+                        self.device_folder_names = {}
                     for index in range(start_index,start_index+len(folder_names)):
                         self.device_folder_names[folder_depth_count][index] = folder_names
+                        
         elif qr_code_type == 2:
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":

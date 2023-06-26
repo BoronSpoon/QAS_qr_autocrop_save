@@ -5,7 +5,7 @@ class EncodeDevices():
             self,
             operator_name = "Placeholder Operator Name",
             chip_name = "Placeholder Chip Name",
-            processes = [],
+            process_names = [],
         ):
         self.operator_name = operator_name
         self.chip_name = chip_name
@@ -14,8 +14,9 @@ class EncodeDevices():
         self.device_folder_names = {}
         self.process_folder_names = {}
         self.processes = {}
-        for i in range(len(processes)):
-            self.processes[i] = processes[i]
+        self.process_names = {}
+        for i in range(len(process_names)):
+            self.process_names[i] = process_names[i]
         self.device_count = 0
         self.process_count = 0
 
@@ -26,6 +27,7 @@ class EncodeDevices():
         print(f"device_aruco = {self.device_aruco}")
         print(f"device_folder_names = {self.device_folder_names}")
         print(f"process_folder_names = {self.process_folder_names}")
+        print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
 
     def add_device(
@@ -145,13 +147,13 @@ class EncodeDevices():
             elif qr_code_type == 3:
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                for process_count in range(len(self.processes)):
-                    process_name = self.processes[process_count]
+                for process_count in range(len(self.process_names)):
+                    process_name = self.process_names[process_count]
                     current_string = "".join([
                         f'{process_count},{process_name};',
                     ])
 
-                    if process_count == len(self.processes)-1: # last element
+                    if process_count == len(self.process_names)-1: # last element
                         if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                             strings[qr_code_type].append(string_header + accumulated_string)
                             strings[qr_code_type].append(string_header + current_string)
@@ -172,7 +174,7 @@ class EncodeDevices():
                         string_header = f'{qr_code_type},{process_count};{folder_depth_count},{0}'
                         for i in range(len(folder_names)):
                             if i == 0:
-                                current_string = f'{folder_names[i]}'
+                                current_string = f',{folder_names[i]}'
                             else:
                                 current_string = f',{folder_names[i]}'
                             if i == len(folder_names)-1: # last element
@@ -197,11 +199,10 @@ class EncodeDevices():
                     for i in range(len(self.devices)): # number of devices
                         if i == 0: # create new QR code at new process
                             string_header = f"{qr_code_type},{j};"
-                        else:
-                            current_string = "".join([
-                                f'{i},{i+1},',
-                                f'{",".join([i for i in self.processes[i][j]["folder_count_at_each_depth"]])};',
-                            ])
+                        current_string = "".join([
+                            f'{i},{i+1},',
+                            f'{",".join([str(i) for i in self.processes[i][j]["folder_count_at_each_depth"]])};',
+                        ])
                         if j == len(self.devices[0])-1 and i == len(self.devices)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                                 strings[qr_code_type].append(string_header + accumulated_string)
@@ -221,7 +222,7 @@ if __name__ == "__main__":
     ed = EncodeDevices(
         operator_name = "Placeholder Operator Name",
         chip_name = "Placeholder Chip Name",
-        processes = ["EB", "MLE"]
+        process_names = ["EB", "MLE"],
     )
     ed.add_device(
         device_folder_names = ["mzi", "coplanar"],

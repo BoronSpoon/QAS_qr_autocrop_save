@@ -7,6 +7,7 @@ class DecodeDevices():
         self.device_folder_names = {}
         self.process_folder_names = {}
         self.processes = {}
+        self.process_names = {}
         self.device_count = 0
         self.process_count = 0
         

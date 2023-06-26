@@ -64,15 +64,20 @@ class EncodeDevices():
                 self.device_folder_names[folder_depth_count] = []
             if device_folder_names[folder_depth_count] not in self.device_folder_names[folder_depth_count]:
                 self.device_folder_names[folder_depth_count].append(device_folder_names[folder_depth_count])
-                
+
+        self.processes[self.device_count] = {}
         for process_count in range(len(process_folder_names)):
             if process_count not in self.process_folder_names.keys():
                 self.process_folder_names[process_count] = {}
             for folder_depth_count in range(len(process_folder_names)):
+                folder_name = process_folder_names[process_count][folder_depth_count]
                 if folder_depth_count not in self.process_folder_names[process_count].keys():
                     self.process_folder_names[process_count][folder_depth_count] = []
-                if process_folder_names[process_count][folder_depth_count] not in self.process_folder_names[process_count][folder_depth_count]:
-                    self.process_folder_names[process_count][folder_depth_count].append(process_folder_names[process_count][folder_depth_count])
+                if folder_name not in self.process_folder_names[process_count][folder_depth_count]:
+                    self.process_folder_names[process_count][folder_depth_count].append(folder_name)
+                if folder_depth_count == 0:
+                    self.processes[self.device_count][process_count] = {}
+                self.processes[self.device_count][process_count][folder_depth_count] = self.process_folder_names[process_count][folder_depth_count].index(folder_name)
 
     def encode_qrs(
         self,
@@ -201,7 +206,7 @@ class EncodeDevices():
                             string_header = f"{qr_code_type},{j};"
                         current_string = "".join([
                             f'{i},{i+1},',
-                            f'{",".join([str(i) for i in self.processes[i][j]["folder_count_at_each_depth"]])};',
+                            f'{",".join([str(i) for i in self.processes[i][j]])};',
                         ])
                         if j == len(self.devices[0])-1 and i == len(self.devices)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually

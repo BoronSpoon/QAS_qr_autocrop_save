@@ -27,7 +27,10 @@ class DecodeDevices():
                 folder_depth_count = int(args[0])
                 start_index        = int(args[1])
                 folder_names       =     args[2:]
-                self.device_folder_names[folder_depth_count][start_index:start_index+len(folder_names)] = folder_names
+                if index not in self.device_folder_names[folder_depth_count].keys():
+                    self.device_folder_names[folder_depth_count] = {}
+                for index in range(start_index,start_index+len(folder_names)):
+                    self.device_folder_names[folder_depth_count][index] = folder_names
         elif qr_code_type == 2:
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 args = arg_dict.split(",")
@@ -87,7 +90,8 @@ class DecodeDevices():
                 start_device_count         = int(args[0])
                 end_device_count           = int(args[1])
                 folder_count_at_each_depth =     args[2:]
-                self.process_folder_names[process_count][start_device_count:end_device_count] = [self.process_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
+                for device_count in range(start_device_count,end_device_count):
+                    self.process_folder_names[process_count][device_count] = [self.process_folder_names[i][folder_count] for (i, folder_count) in enumerate(folder_count_at_each_depth)]
         
         return string
 

@@ -212,9 +212,7 @@ class EncodeDevices():
                                 self.strings[qr_code_type][process_count].append(string_header + accumulated_string)
                                 accumulated_string = current_string
                             else:
-                                accumulated_string += current_string
-                                
-                pprint(self.strings[5])
+                                accumulated_string += current_string   
         
         return self.strings
     

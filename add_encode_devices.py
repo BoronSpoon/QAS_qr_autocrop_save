@@ -146,7 +146,7 @@ class EncodeDevices():
                             f'{self.device_x_lens[device_count]},{self.device_y_lens[device_count]},',
                             f'{self.device_aruco_x_offsets[device_count][aruco_count]},{self.device_aruco_y_offsets[device_count][aruco_count]},',
                             f'{self.device_aruco_sizes[device_count][aruco_count]},',
-                            f'{",".join([str(i) for i in self.devices])};',
+                            f'{",".join([str(i) for i in self.devices[device_count]])};',
                         ])
 
                     if device_count == len(self.device_x_lens)-1 and aruco_count == len(self.device_aruco_x_offsets)-1: # last element

@@ -3,6 +3,7 @@
 from draw_qr import draw_qrcode
 import numpy as np
 import cv2
+from pprint import pprint
 
 class EncodeDevices():
     def __init__(
@@ -28,21 +29,24 @@ class EncodeDevices():
         self.device_count = 0
         self.process_count = 0
         self.whitespace = 3
-
+        
     def print(self):
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
-        print(f"devices = {self.devices}")
-        print(f"device_folder_names = {self.device_folder_names}")
+        print(f"devices = ")
+        pprint(self.devices)
+        #print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
-        print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
-        print(f"device_aruco_y_offsets = {self.device_aruco_y_offsets}")
+        print(f"device_aruco_x_offsets = ")
+        pprint(self.device_aruco_x_offsets)
+        print(f"device_aruco_y_offsets = ")
+        pprint(self.device_aruco_y_offsets)
         print(f"device_aruco_sizes = {self.device_aruco_sizes}")
-        print(f"process_folder_names = {self.process_folder_names}")
+        #print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
-        print(f"processes = {self.processes}")
-
+        print(f"processes = ")
+        pprint(self.processes)
     def add_device(
         self,
         device_folder_names, # list of names of folder from parent to children
@@ -239,7 +243,6 @@ class EncodeDevices():
                     (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                     (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
                 ] = draw_qrcode(string)
-                print(string)
                 col_count += 1
             
         for process_count in range(self.process_count):
@@ -251,7 +254,6 @@ class EncodeDevices():
                         (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                         (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
                     ] = draw_qrcode(string)
-                    print(string)
                 col_count += 1
         return self.data
 

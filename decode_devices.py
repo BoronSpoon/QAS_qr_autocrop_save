@@ -20,16 +20,20 @@ class DecodeDevices():
     def print(self):
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
-        print(f"devices = {json.dumps(self.devices, indent=4)}")
+        print(f"devices = ")
+        pprint(self.devices)
         #print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
-        print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
-        print(f"device_aruco_y_offsets = {self.device_aruco_y_offsets}")
+        print(f"device_aruco_x_offsets = ")
+        pprint(self.device_aruco_x_offsets)
+        print(f"device_aruco_y_offsets = ")
+        pprint(self.device_aruco_y_offsets)
         print(f"device_aruco_sizes = {self.device_aruco_sizes}")
         #print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
-        print(f"processes = {json.dumps(self.processes, indent=4)}")
+        print(f"processes = ")
+        pprint(self.processes)
 
     def decode_qrs(
             self, 

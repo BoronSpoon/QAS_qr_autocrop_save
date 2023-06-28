@@ -309,7 +309,7 @@ if __name__ == "__main__":
     strings = ed.encode_qrs()
     print(strings)
     data = ed.get_combined_qr_bits()
-    cv2.imshow("frame", cv2.resize(data*255, (0, 0), fx=3, fy=3, interpolation=0))
+    cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
     while(True):
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break

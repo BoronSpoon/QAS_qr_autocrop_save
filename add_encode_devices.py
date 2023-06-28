@@ -75,11 +75,11 @@ class EncodeDevices():
                 self.devices[self.device_count].append(self.device_folder_names.index(device_folder_name))
             
         self.processes[self.device_count] = {}
-        for process_count in range(len(process_folder_names[0])):
+        for process_count in range(len(process_folder_names)):
             if process_count not in self.process_folder_names.keys():
                 self.process_folder_names[process_count] = []
-            for folder_depth_count in range(len(process_folder_names[process_count])):
-                folder_name = process_folder_names[self.device_count][process_count][folder_depth_count]
+            for folder_depth_count in range(len(process_folder_names[0])):
+                folder_name = process_folder_names[process_count][folder_depth_count]
                 if folder_name not in self.process_folder_names[process_count]:
                     self.process_folder_names[process_count].append(folder_name)
                 if folder_depth_count == 0:
@@ -139,7 +139,7 @@ class EncodeDevices():
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
                 for device_count in range(len(self.device_x_lens)):
-                    for aruco_count in range(len(self.device_aruco_x_offsets)):
+                    for aruco_count in range(len(self.device_aruco_x_offsets[0])):
                         current_string = "".join([
                             f'{device_count},{device_count+1},',
                             f'{aruco_count},{aruco_count+1},',
@@ -265,8 +265,8 @@ if __name__ == "__main__":
         chip_name = "Placeholder Chip Name",
         process_names = ["EB", "MLE"],
     )
-    ed.add_device(
-        device_folder_names = [
+    for device_folder_names, process_folder_names in zip(
+        [ # [device, folder_depth]
             ["mzi", "coplanar"],
             ["mzi", "coplanar"],
             ["mzi", "coplanar"],
@@ -275,8 +275,7 @@ if __name__ == "__main__":
             ["mzi", "single_line"],
             ["mzi", "single_line"],
             ["mzi", "single_line"],
-        ],
-        process_folder_names = [ # [device, process, folder_depth]
+        ], [ # [device, process, folder_depth]
             [
                 ["100uC/cm^2", "mzi", "1mm"],
                 ["25%", "gap (um)", "2"], 
@@ -303,12 +302,16 @@ if __name__ == "__main__":
                 ["25%", "width (um)", "8"], 
             ],
         ],
-        device_x_len = 100,
-        device_y_len = 10,
-        aruco_x_offsets = [0],
-        aruco_y_offsets = [0],
-        aruco_sizes = [20],
-    )
+    ):
+        ed.add_device(
+            device_folder_names = device_folder_names,
+            process_folder_names = process_folder_names,
+            device_x_len = 100,
+            device_y_len = 10,
+            aruco_x_offsets = [0],
+            aruco_y_offsets = [0],
+            aruco_sizes = [20],
+        )
     ed.print()
     strings = ed.encode_qrs()
     print(strings)

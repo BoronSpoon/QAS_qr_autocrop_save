@@ -16,7 +16,7 @@ class EncodeDevices():
         self.device_aruco_y_offsets = {}
         self.device_aruco_sizes = {}
         self.device_folder_names = []
-        self.process_folder_names = []
+        self.process_folder_names = {}
         self.processes = {}
         self.process_names = {}
         for i in range(len(process_names)):
@@ -69,13 +69,15 @@ class EncodeDevices():
             
         self.processes[self.device_count] = {}
         for process_count in range(len(process_folder_names[0])):
+            if process_count not in self.process_folder_names.keys():
+                self.process_folder_names[process_count] = []
             for folder_depth_count in range(len(process_folder_names[process_count])):
                 folder_name = process_folder_names[self.device_count][process_count][folder_depth_count]
-                if folder_name not in self.process_folder_names:
-                    self.process_folder_names.append(folder_name)
+                if folder_name not in self.process_folder_names[process_count]:
+                    self.process_folder_names[process_count].append(folder_name)
                 if folder_depth_count == 0:
                     self.processes[self.device_count][process_count] = []
-                self.processes[self.device_count][process_count].append(self.process_folder_names.index(folder_name))
+                self.processes[self.device_count][process_count].append(self.process_folder_names[process_count].index(folder_name))
 
         self.device_count += 1 
         
@@ -173,23 +175,24 @@ class EncodeDevices():
             elif qr_code_type == 4:
                 accumulated_string = ""
                 string_header = f'{qr_code_type},{process_count};{0}'
-                for i in range(len(self.process_folder_names)):
-                    current_string = f',{self.process_folder_names[i]}'
-                    if i == len(self.process_folder_names)-1: # last element
-                        # not within char_count_limit, split and append individually
-                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                            string_header = f'{qr_code_type};{i}'
-                            self.strings[qr_code_type].append(f"{string_header}{current_string};")
-                        else: # within char_count_limit
-                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
-                    else:
-                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                            string_header = f'{qr_code_type};{i}'
-                            accumulated_string = current_string
-                        else: # within char_count_limit
-                            accumulated_string += current_string
+                for process_count in range(len(self.process_folder_names)):
+                    for i in range(len(self.process_folder_names[0])):
+                        current_string = f',{self.process_folder_names[process_count][i]}'
+                        if i == len(self.process_folder_names[process_count])-1: # last element
+                            # not within char_count_limit, split and append individually
+                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                string_header = f'{qr_code_type};{i}'
+                                self.strings[qr_code_type].append(f"{string_header}{current_string};")
+                            else: # within char_count_limit
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                        else:
+                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                string_header = f'{qr_code_type};{i}'
+                                accumulated_string = current_string
+                            else: # within char_count_limit
+                                accumulated_string += current_string
 
             elif qr_code_type == 5:
                 accumulated_string = ""

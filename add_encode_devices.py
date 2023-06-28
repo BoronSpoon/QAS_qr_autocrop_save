@@ -172,7 +172,7 @@ class EncodeDevices():
             elif qr_code_type == 4:
                 accumulated_string = ""
                 string_header = f'{qr_code_type},{process_count};{0}'
-                for process_count in range(len(self.process_folder_names)):
+                for process_count in range(len(self.process_names)):
                     for i in range(len(self.process_folder_names[0])):
                         current_string = f',{self.process_folder_names[process_count][i]}'
                         if i == len(self.process_folder_names[process_count])-1: # last element
@@ -193,7 +193,7 @@ class EncodeDevices():
 
             elif qr_code_type == 5:
                 accumulated_string = ""
-                for process_count in range(len(self.processes[0])):
+                for process_count in range(len(self.process_names)):
                     for device_count in range(len(self.processes)):
                         if device_count == 0: # create new QR code at new process
                             string_header = f"{qr_code_type},{process_count};"

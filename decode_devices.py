@@ -19,13 +19,13 @@ class DecodeDevices():
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
         print(f"devices = {self.devices}")
-        print(f"device_folder_names = {self.device_folder_names}")
+        #print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
         print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
         print(f"device_aruco_y_offsets = {self.device_aruco_y_offsets}")
         print(f"device_aruco_sizes = {self.device_aruco_sizes}")
-        print(f"process_folder_names = {self.process_folder_names}")
+        #print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
 
@@ -111,16 +111,18 @@ class DecodeDevices():
 
         elif qr_code_type == 5:
             process_count = int(arg_dicts[0].split(",")[1])
-            if process_count not in self.processes.keys():
-                self.processes[process_count] = {}
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
                     args = arg_dict.split(",")
                     start_device_count         = int(args[0])
                     end_device_count           = int(args[1])
                     folder_count_at_each_depth = [int(i) for i in args[2:]]
-                    for device_count in range(start_device_count,end_device_count):
-                        self.processes[process_count][device_count] = [
+                    for device_count in range(start_device_count,end_device_count):            
+                        if device_count not in self.processes.keys():
+                            self.processes[device_count] = {}
+                        if process_count not in self.processes[device_count].keys():
+                            self.processes[device_count][process_count] = {}
+                        self.processes[device_count][process_count] = [
                             self.process_folder_names[process_count][folder_count] for folder_count in folder_count_at_each_depth
                         ]
         

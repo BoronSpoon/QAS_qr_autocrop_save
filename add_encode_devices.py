@@ -137,7 +137,7 @@ class EncodeDevices():
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
                 for device_count in range(self.device_len):
-                    for aruco_count in range(len(self.device_aruco_x_offsets[0])):
+                    for aruco_count in range(len(self.device_aruco_x_offsets[device_count])):
                         current_string = "".join([
                             f'{device_count},{device_count+1},',
                             f'{aruco_count},{aruco_count+1},',
@@ -161,7 +161,7 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 3:
-                for process_count in range(len(self.process_names)):
+                for process_count in range(self.process_len):
                     process_name = self.process_names[process_count]
                     string_header = f"{qr_code_type},{process_count};"
                     current_string = f'{process_name};'
@@ -169,8 +169,8 @@ class EncodeDevices():
 
             elif qr_code_type == 4:
                 accumulated_string = ""
-                string_header = f'{qr_code_type},{process_count};{0}'
-                for process_count in range(len(self.process_names)):
+                for process_count in range(self.process_len):
+                    string_header = f'{qr_code_type},{process_count};{0}'
                     for i in range(len(self.process_folder_names[0])):
                         current_string = f',{self.process_folder_names[process_count][i]}'
                         if i == len(self.process_folder_names[process_count])-1: # last element
@@ -191,15 +191,15 @@ class EncodeDevices():
 
             elif qr_code_type == 5:
                 accumulated_string = ""
-                for process_count in range(len(self.process_names)):
-                    for device_count in range(len(self.processes)):
+                for process_count in range(self.process_len):
+                    for device_count in range(self.device_len):
                         if device_count == 0: # create new QR code at new process
                             string_header = f"{qr_code_type},{process_count};"
                         current_string = "".join([
                             f'{device_count},{device_count+1},',
                             f'{",".join([str(i) for i in self.processes[device_count][process_count]])};',
                         ])
-                        if process_count == len(self.processes[0])-1 and device_count == len(self.processes)-1: # last element
+                        if device_count == self.process_len-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                                 self.strings[qr_code_type][process_count].append(string_header + accumulated_string)
                                 self.strings[qr_code_type][process_count].append(string_header + current_string)

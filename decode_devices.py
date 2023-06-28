@@ -115,6 +115,7 @@ class DecodeDevices():
                         self.process_folder_names[process_count][start_index + index] = folder_names[index]
 
         elif qr_code_type == 5:
+            print(arg_dicts)
             process_count = int(arg_dicts[0].split(",")[1])
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":

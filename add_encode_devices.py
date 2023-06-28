@@ -201,7 +201,7 @@ class EncodeDevices():
                             f'{device_count},{device_count+1},',
                             f'{",".join([str(i) for i in self.processes[device_count][process_count]])};',
                         ])
-                        if device_count == self.process_len-1: # last element
+                        if device_count == self.device_len-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                                 self.strings[qr_code_type][process_count].append(string_header + accumulated_string)
                                 self.strings[qr_code_type][process_count].append(string_header + current_string)
@@ -213,6 +213,8 @@ class EncodeDevices():
                                 accumulated_string = current_string
                             else:
                                 accumulated_string += current_string
+                                
+                pprint(self.strings[5])
         
         return self.strings
     

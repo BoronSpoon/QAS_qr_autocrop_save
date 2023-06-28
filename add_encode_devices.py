@@ -241,6 +241,7 @@ class EncodeDevices():
                     (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                     (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
                 ] = draw_qrcode(string)
+                print(string)
                 col_count += 1
             
         for process_count in range(self.process_count):
@@ -252,6 +253,7 @@ class EncodeDevices():
                         (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                         (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
                     ] = draw_qrcode(string)
+                    print(string)
                 col_count += 1
         return self.data
 

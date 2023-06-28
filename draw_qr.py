@@ -7,7 +7,7 @@ def string2array(string):
     data = [[int(i) for i in list(j)] for j in data]
     return np.array(data).astype(np.uint8)
 
-def draw_qrcode(error="Q", version=8, string=""):
+def draw_qrcode(string="", error="Q", version=8):
     qr = pyqrcode.QRCode(string, error=error, version=version, mode="binary", encoding='iso-8859-1')
     data = string2array(qr.text(quiet_zone=0))
     return data

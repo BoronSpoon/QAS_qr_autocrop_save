@@ -2,6 +2,7 @@
 # use range(len(arg)) because arg can be list or dict
 from draw_qr import draw_qrcode
 import numpy as np
+import cv2
 
 class EncodeDevices():
     def __init__(
@@ -253,8 +254,6 @@ class EncodeDevices():
                     ] = draw_qrcode(string)
                 col_count += 1
         return self.data
-        
-
 
 if __name__ == "__main__":
     ed = EncodeDevices(
@@ -310,6 +309,10 @@ if __name__ == "__main__":
     strings = ed.encode_qrs()
     print(strings)
     data = ed.get_combined_qr_bits()
+    cv2.imshow("frame", cv2.resize(data*255, (0, 0), fx=10, fy=10, interpolation="nearest"))
+    while(True):
+        if cv2.waitKey(0) & 0xFF == ord('q'):
+            break
     from decode_devices import DecodeDevices
     dd = DecodeDevices()
     for key0 in strings.keys():

@@ -308,9 +308,9 @@ if __name__ == "__main__":
             aruco_y_offsets = [0],
             aruco_size = 20,
         )
-    ed.print()
+    #ed.print()
     strings = ed.encode_qrs()
-    print(strings)
+    #print(strings)
     data = ed.get_combined_qr_bits()
     #cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
     #while(True):

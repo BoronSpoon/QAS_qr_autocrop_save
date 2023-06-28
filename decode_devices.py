@@ -1,3 +1,5 @@
+from pprint import pprint
+
 class DecodeDevices():
     def __init__(self, ):
         self.operator_name = "Placeholder Operator Name",
@@ -18,7 +20,7 @@ class DecodeDevices():
     def print(self):
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
-        print(f"devices = {self.devices}")
+        print(f"devices = {json.dumps(self.devices, indent=4)}")
         #print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
@@ -27,7 +29,7 @@ class DecodeDevices():
         print(f"device_aruco_sizes = {self.device_aruco_sizes}")
         #print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
-        print(f"processes = {self.processes}")
+        print(f"processes = {json.dumps(self.processes, indent=4)}")
 
     def decode_qrs(
             self, 

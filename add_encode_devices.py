@@ -147,7 +147,7 @@ class EncodeDevices():
                             f'{",".join([str(i) for i in self.devices[device_count]])};',
                         ])
 
-                    if device_count == len(self.device_x_lens)-1 and aruco_count == len(self.device_aruco_x_offsets)-1: # last element
+                    if device_count == self.device_len-1 and aruco_count == len(self.device_aruco_x_offsets[0])-1: # last element
                         if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
                             self.strings[qr_code_type].append(string_header + accumulated_string)
                             self.strings[qr_code_type].append(string_header + current_string)

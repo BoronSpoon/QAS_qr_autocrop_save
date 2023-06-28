@@ -51,7 +51,7 @@ class EncodeDevices():
         device_y_len, 
         aruco_x_offsets, 
         aruco_y_offsets, 
-        aruco_sizes, 
+        aruco_size, 
     ):
         self.device_x_lens[self.device_count] = device_x_len
         self.device_y_lens[self.device_count] = device_y_len
@@ -60,12 +60,10 @@ class EncodeDevices():
             self.device_aruco_x_offsets[self.device_count] = {}
         if self.device_count not in self.device_aruco_y_offsets.keys():
             self.device_aruco_y_offsets[self.device_count] = {}
-        if self.device_count not in self.device_aruco_sizes.keys():
-            self.device_aruco_sizes[self.device_count] = {}
-        for aruco_count in range(min(len(aruco_x_offsets), len(aruco_y_offsets), len(aruco_sizes))):
+        for aruco_count in range(min(len(aruco_x_offsets), len(aruco_y_offsets))):
             self.device_aruco_x_offsets[self.device_count][aruco_count] = aruco_x_offsets[aruco_count]
             self.device_aruco_y_offsets[self.device_count][aruco_count] = aruco_y_offsets[aruco_count]
-            self.device_aruco_sizes[self.device_count][aruco_count] = aruco_sizes[aruco_count]
+            self.device_aruco_sizes[self.device_count] = aruco_size # same size for all aruco_count in device
 
         self.devices[self.device_count] = []
         for folder_depth_count in range(len(device_folder_names)):
@@ -143,7 +141,7 @@ class EncodeDevices():
                             f'{aruco_count},{aruco_count+1},',
                             f'{self.device_x_lens[device_count]},{self.device_y_lens[device_count]},',
                             f'{self.device_aruco_x_offsets[device_count][aruco_count]},{self.device_aruco_y_offsets[device_count][aruco_count]},',
-                            f'{self.device_aruco_sizes[device_count][aruco_count]},',
+                            f'{self.device_aruco_sizes[device_count]},',
                             f'{",".join([str(i) for i in self.devices[device_count]])};',
                         ])
 
@@ -308,7 +306,7 @@ if __name__ == "__main__":
             device_y_len = 10,
             aruco_x_offsets = [0],
             aruco_y_offsets = [0],
-            aruco_sizes = [20],
+            aruco_size = 20,
         )
     ed.print()
     strings = ed.encode_qrs()

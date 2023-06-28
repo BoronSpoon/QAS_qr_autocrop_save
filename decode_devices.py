@@ -83,11 +83,10 @@ class DecodeDevices():
                         self.devices[device_count] = [self.device_folder_names[int(folder_count)] for folder_count in folder_count_at_each_depth]
                         self.device_aruco_x_offsets[device_count] = {}
                         self.device_aruco_y_offsets[device_count] = {}
-                        self.device_aruco_sizes[device_count] = {}
                         for aruco_count in range(start_aruco_count,end_aruco_count):
                             self.device_aruco_x_offsets[device_count][aruco_count] = aruco_x_offset
                             self.device_aruco_y_offsets[device_count][aruco_count] = aruco_y_offset
-                            self.device_aruco_sizes[device_count][aruco_count] = aruco_size
+                            self.device_aruco_sizes[device_count] = aruco_size
                     
         elif qr_code_type == 3:
             process_count = int(arg_dicts[0].split(",")[1])

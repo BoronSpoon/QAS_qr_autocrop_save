@@ -229,8 +229,8 @@ class EncodeDevices():
 
         single_qr_code_size = len(draw_qrcode()) # get single qr code bits len 
         self.data = np.zeros(( # get (row,col) tiles qr code bits len
-            (single_qr_code_size+self.whitespace)*row_len, 
-            (single_qr_code_size+self.whitespace)*col_len
+            single_qr_code_size*row_len + self.whitespace*(row_len-1),
+            single_qr_code_size*col_len + self.whitespace*(col_len-1),
         ), dtype=np.uint8)
 
         row_count = 0
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     strings = ed.encode_qrs()
     print(strings)
     data = ed.get_combined_qr_bits()
-    cv2.imshow("frame", cv2.resize(data*255, (0, 0), fx=10, fy=10, interpolation="nearest"))
+    cv2.imshow("frame", cv2.resize(data*255, (0, 0), fx=3, fy=3, interpolation=0))
     while(True):
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break

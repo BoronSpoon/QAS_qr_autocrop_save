@@ -69,10 +69,10 @@ class EncodeDevices():
 
         self.devices[self.device_count] = []
         for folder_depth_count in range(len(device_folder_names)):
-            for device_folder_name in device_folder_names[folder_depth_count]:
-                if device_folder_name not in self.device_folder_names:
-                    self.device_folder_names.append(device_folder_name)
-                self.devices[self.device_count].append(self.device_folder_names.index(device_folder_name))
+            device_folder_name = device_folder_names[folder_depth_count]
+            if device_folder_name not in self.device_folder_names:
+                self.device_folder_names.append(device_folder_name)
+            self.devices[self.device_count].append(self.device_folder_names.index(device_folder_name))
             
         self.processes[self.device_count] = {}
         for process_count in range(len(process_folder_names)):

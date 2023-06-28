@@ -80,11 +80,11 @@ class DecodeDevices():
                             self.device_aruco_sizes[device_count][aruco_count] = aruco_size
                     
         elif qr_code_type == 3:
+            process_count = int(arg_dicts[0].split(",")[1])
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
                     args = arg_dict.split(",")
-                    process_count = int(args[0])
-                    process_name  =     args[1]
+                    process_name = args[0]
                     self.process_names[process_count] = process_name
 
         elif qr_code_type == 4:

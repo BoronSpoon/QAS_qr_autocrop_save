@@ -151,12 +151,10 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 3:
-                string_header = f"{qr_code_type};"
                 for process_count in range(len(self.process_names)):
                     process_name = self.process_names[process_count]
-                    current_string = "".join([
-                        f'{process_count},{process_name};',
-                    ])
+                    string_header = f"{qr_code_type},{process_count};"
+                    current_string = f'{process_name};'
                     self.strings[qr_code_type].append(string_header + current_string)
 
             elif qr_code_type == 4:
@@ -221,18 +219,23 @@ class EncodeDevices():
 
             elif qr_code_type == 1:
                 for i in range(len(strings)):
+                    pass
 
             elif qr_code_type == 2:
                 for i in range(len(strings)):
+                    pass
 
             elif qr_code_type == 3:
                 for i in range(len(strings)):
+                    pass
 
             elif qr_code_type == 4:
                 for i in range(len(strings)):
+                    pass
 
             elif qr_code_type == 5:
                 for i in range(len(strings)):
+                    pass
 
 
 

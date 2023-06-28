@@ -9,7 +9,9 @@ def string2array(string):
 
 def draw_qrcode(error="Q", version=8, string=""):
     qr = pyqrcode.QRCode(string, error=error, version=version, mode="binary", encoding='iso-8859-1')
-    data = string2array(qr.text(quiet_zone=0))
+    frame = string2array(qr.text(quiet_zone=0))
+    return frame
     
 if __name__ == "__main__":
     frame = draw_qrcode(string="test")
+    print(frame)

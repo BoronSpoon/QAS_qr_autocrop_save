@@ -87,12 +87,12 @@ class EncodeDevices():
     ):
         self.device_count = len(self.devices)
         self.process_count = len(self.processes)
-        strings = {i:[] for i in range(qr_code_type_count)}
+        self.strings = {i:[] for i in range(qr_code_type_count)}
 
         for qr_code_type in range(qr_code_type_count):
 
             if qr_code_type == 0:
-                strings[qr_code_type].append(
+                self.strings[qr_code_type].append(
                     f'{qr_code_type};{len(self.devices)},{self.operator_name},{self.chip_name};'    
                 )
 
@@ -108,14 +108,14 @@ class EncodeDevices():
                         if i == len(self.device_folder_names)-1: # last element
                             # not within char_count_limit, split and append individually
                             if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{i}'
-                                strings[qr_code_type].append(f"{string_header}{current_string};")
+                                self.strings[qr_code_type].append(f"{string_header}{current_string};")
                             else: # within char_count_limit
-                                strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
                         else:
                             if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{i}'
                                 accumulated_string = current_string
                             else: # within char_count_limit
@@ -137,13 +137,13 @@ class EncodeDevices():
 
                     if device_count == len(self.device_x_lens)-1 and aruco_count == len(self.device_aruco_x_offsets)-1: # last element
                         if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
-                            strings[qr_code_type].append(string_header + accumulated_string)
-                            strings[qr_code_type].append(string_header + current_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string)
+                            self.strings[qr_code_type].append(string_header + current_string)
                         else: # within char_count_limit
-                            strings[qr_code_type].append(string_header + accumulated_string + current_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string + current_string)
                     else: 
                         if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
-                            strings[qr_code_type].append(string_header + accumulated_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string)
                             accumulated_string = current_string
                         else:
                             accumulated_string += current_string
@@ -159,13 +159,13 @@ class EncodeDevices():
 
                     if process_count == len(self.process_names)-1: # last element
                         if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
-                            strings[qr_code_type].append(string_header + accumulated_string)
-                            strings[qr_code_type].append(string_header + current_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string)
+                            self.strings[qr_code_type].append(string_header + current_string)
                         else: # within char_count_limit
-                            strings[qr_code_type].append(string_header + accumulated_string + current_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string + current_string)
                     else: 
                         if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
-                            strings[qr_code_type].append(string_header + accumulated_string)
+                            self.strings[qr_code_type].append(string_header + accumulated_string)
                             accumulated_string = current_string
                         else:
                             accumulated_string += current_string
@@ -178,14 +178,14 @@ class EncodeDevices():
                     if i == len(self.process_folder_names)-1: # last element
                         # not within char_count_limit, split and append individually
                         if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                            strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                             string_header = f'{qr_code_type};{i}'
-                            strings[qr_code_type].append(f"{string_header}{current_string};")
+                            self.strings[qr_code_type].append(f"{string_header}{current_string};")
                         else: # within char_count_limit
-                            strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
                     else:
                         if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                            strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
                             string_header = f'{qr_code_type};{i}'
                             accumulated_string = current_string
                         else: # within char_count_limit
@@ -203,19 +203,37 @@ class EncodeDevices():
                         ])
                         if process_count == len(self.processes[0])-1 and device_count == len(self.processes)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
-                                strings[qr_code_type].append(string_header + accumulated_string)
-                                strings[qr_code_type].append(string_header + current_string)
+                                self.strings[qr_code_type].append(string_header + accumulated_string)
+                                self.strings[qr_code_type].append(string_header + current_string)
                             else: # within char_count_limit
-                                strings[qr_code_type].append(string_header + accumulated_string + current_string)
+                                self.strings[qr_code_type].append(string_header + accumulated_string + current_string)
                         else: 
                             if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
-                                strings[qr_code_type].append(string_header + accumulated_string)
+                                self.strings[qr_code_type].append(string_header + accumulated_string)
                                 accumulated_string = current_string
                             else:
                                 accumulated_string += current_string
         
-        return strings
+        return self.strings
     
+    def get_combined_qr_bits(
+        self, 
+    ):
+        for qr_code_type, strings in self.strings.items():
+            if qr_code_type == 0:
+                pass
+            elif qr_code_type == 1:
+                pass
+            elif qr_code_type == 2:
+                pass
+            elif qr_code_type == 3:
+                pass
+            elif qr_code_type == 4:
+                pass
+            elif qr_code_type == 5:
+                pass
+
+
 if __name__ == "__main__":
     ed = EncodeDevices(
         operator_name = "Placeholder Operator Name",

@@ -89,15 +89,13 @@ class DecodeDevices():
 
         elif qr_code_type == 4:
             process_count = int(arg_dicts[0].split(",")[1])
-            if process_count not in self.process_folder_names.keys():
-                self.process_folder_names[process_count] = {}
             for i, arg_dict in enumerate(arg_dicts[1:]):
                 if arg_dict != "":
                     args = arg_dict.split(",")
                     start_index        = int(args[0])
                     folder_names       =     args[1:]
                     for index in range(len(folder_names)):
-                        self.process_folder_names[process_count][start_index + index] = folder_names[index]
+                        self.process_folder_names[start_index + index] = folder_names[index]
 
         elif qr_code_type == 5:
             process_count = int(arg_dicts[0].split(",")[1])
@@ -111,8 +109,7 @@ class DecodeDevices():
                     folder_count_at_each_depth = [int(i) for i in args[2:]]
                     for device_count in range(start_device_count,end_device_count):
                         self.processes[process_count][device_count] = [
-                            self.process_folder_names[device_count][folder_depth][folder_count]
-                            for (folder_depth, folder_count) in enumerate(folder_count_at_each_depth)
+                            self.process_folder_names[folder_count] for folder_count in folder_count_at_each_depth
                         ]
         
         return string

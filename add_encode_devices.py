@@ -94,14 +94,13 @@ class EncodeDevices():
         char_count_limit = 108,
         **kwargs,
     ):
-        self.device_count = len(self.devices)
-        self.process_count = len(self.process_names)
+        self.device_len = len(self.devices)
+        self.process_len = len(self.process_names)
         self.strings = {}
-        for i in range(qr_code_type_count):
-            if i in [0,1,2]:
-                self.strings[i] = []
-            else:
-                self.strings[i] = {j: [] for j in range(self.process_count)}
+        for i in [0,1,2]:
+            self.strings[i] = []
+        for i in [3,4,5]:
+            self.strings[i] = {j: [] for j in range(self.process_len)}
 
         for qr_code_type in range(qr_code_type_count):
 
@@ -111,34 +110,33 @@ class EncodeDevices():
                 )
 
             elif qr_code_type == 1:
-                for folder_depth_count in range(len(self.device_folder_names)):
-                    accumulated_string = ""
-                    string_header = f'{qr_code_type};{0}'
-                    for i in range(len(self.device_folder_names)):
-                        if i == 0:
-                            current_string = f',{self.device_folder_names[i]}'
-                        else:
-                            current_string = f',{self.device_folder_names[i]}'
-                        if i == len(self.device_folder_names)-1: # last element
-                            # not within char_count_limit, split and append individually
-                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                string_header = f'{qr_code_type};{i}'
-                                self.strings[qr_code_type].append(f"{string_header}{current_string};")
-                            else: # within char_count_limit
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
-                        else:
-                            if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
-                                string_header = f'{qr_code_type};{i}'
-                                accumulated_string = current_string
-                            else: # within char_count_limit
-                                accumulated_string += current_string
+                accumulated_string = ""
+                string_header = f'{qr_code_type};{0}'
+                for i in range(len(self.device_folder_names)):
+                    if i == 0:
+                        current_string = f',{self.device_folder_names[i]}'
+                    else:
+                        current_string = f',{self.device_folder_names[i]}'
+                    if i == len(self.device_folder_names)-1: # last element
+                        # not within char_count_limit, split and append individually
+                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            string_header = f'{qr_code_type};{i}'
+                            self.strings[qr_code_type].append(f"{string_header}{current_string};")
+                        else: # within char_count_limit
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                    else:
+                        if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
+                            self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                            string_header = f'{qr_code_type};{i}'
+                            accumulated_string = current_string
+                        else: # within char_count_limit
+                            accumulated_string += current_string
 
             elif qr_code_type == 2:
                 accumulated_string = ""
                 string_header = f"{qr_code_type};"
-                for device_count in range(len(self.device_x_lens)):
+                for device_count in range(self.device_len):
                     for aruco_count in range(len(self.device_aruco_x_offsets[0])):
                         current_string = "".join([
                             f'{device_count},{device_count+1},',

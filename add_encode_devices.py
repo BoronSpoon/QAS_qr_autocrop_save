@@ -1,5 +1,8 @@
 # format rule
 # use range(len(arg)) because arg can be list or dict
+from draw_qr import draw_qrcode
+import numpy as np
+
 class EncodeDevices():
     def __init__(
             self,
@@ -23,6 +26,7 @@ class EncodeDevices():
             self.process_names[i] = process_names[i]
         self.device_count = 0
         self.process_count = 0
+        self.whitespace = 3
 
     def print(self):
         print(f"operator_name = {self.operator_name}")
@@ -88,8 +92,13 @@ class EncodeDevices():
         **kwargs,
     ):
         self.device_count = len(self.devices)
-        self.process_count = len(self.processes)
-        self.strings = {i:[] for i in range(qr_code_type_count)}
+        self.process_count = len(self.process_names)
+        self.strings = {}
+        for i in range(qr_code_type_count):
+            if i in [0,1,2]:
+                self.strings[i] = []
+            else:
+                self.strings[i] = {j: [] for j in range(self.process_count)}
 
         for qr_code_type in range(qr_code_type_count):
 
@@ -155,7 +164,7 @@ class EncodeDevices():
                     process_name = self.process_names[process_count]
                     string_header = f"{qr_code_type},{process_count};"
                     current_string = f'{process_name};'
-                    self.strings[qr_code_type].append(string_header + current_string)
+                    self.strings[qr_code_type][process_count].append(string_header + current_string)
 
             elif qr_code_type == 4:
                 accumulated_string = ""
@@ -166,14 +175,14 @@ class EncodeDevices():
                         if i == len(self.process_folder_names[process_count])-1: # last element
                             # not within char_count_limit, split and append individually
                             if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                self.strings[qr_code_type][process_count].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{i}'
-                                self.strings[qr_code_type].append(f"{string_header}{current_string};")
+                                self.strings[qr_code_type][process_count].append(f"{string_header}{current_string};")
                             else: # within char_count_limit
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string}{current_string};")
+                                self.strings[qr_code_type][process_count].append(f"{string_header}{accumulated_string}{current_string};")
                         else:
                             if len(string_header + accumulated_string + current_string) + 1 > char_count_limit: # +1 is for ";"    
-                                self.strings[qr_code_type].append(f"{string_header}{accumulated_string};")
+                                self.strings[qr_code_type][process_count].append(f"{string_header}{accumulated_string};")
                                 string_header = f'{qr_code_type};{i}'
                                 accumulated_string = current_string
                             else: # within char_count_limit
@@ -191,13 +200,13 @@ class EncodeDevices():
                         ])
                         if process_count == len(self.processes[0])-1 and device_count == len(self.processes)-1: # last element
                             if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
-                                self.strings[qr_code_type].append(string_header + accumulated_string)
-                                self.strings[qr_code_type].append(string_header + current_string)
+                                self.strings[qr_code_type][process_count].append(string_header + accumulated_string)
+                                self.strings[qr_code_type][process_count].append(string_header + current_string)
                             else: # within char_count_limit
-                                self.strings[qr_code_type].append(string_header + accumulated_string + current_string)
+                                self.strings[qr_code_type][process_count].append(string_header + accumulated_string + current_string)
                         else: 
                             if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
-                                self.strings[qr_code_type].append(string_header + accumulated_string)
+                                self.strings[qr_code_type][process_count].append(string_header + accumulated_string)
                                 accumulated_string = current_string
                             else:
                                 accumulated_string += current_string
@@ -207,36 +216,44 @@ class EncodeDevices():
     def get_combined_qr_bits(
         self, 
     ):
-        row_count = 0
-        column_count = 0
+        col_counts = []
+        # find out the max column, rows
+        
+        col_counts.append(len(self.strings[0]) + len(self.strings[1]) + len(self.strings[2])) # for qr_code_type in [0,1,2] 
+        for process_count in range(self.process_count):
+            col_counts.append(len(self.strings[3][process_count]) + len(self.strings[4][process_count]) + len(self.strings[5][process_count]))
+        
         row_len = 1 + self.process_count
-        column_len = -1
-        for qr_code_type in range(len(self.strings)):
-            strings = self.strings[qr_code_type]
-            if qr_code_type == 0:
-                for i in range(len(strings)):
-                    column_count += 1
+        col_len = max(col_counts)
 
-            elif qr_code_type == 1:
-                for i in range(len(strings)):
-                    pass
+        single_qr_code_size = len(draw_qrcode()) # get single qr code bits len 
+        self.data = np.zeros(( # get (row,col) tiles qr code bits len
+            (single_qr_code_size+self.whitespace)*row_len, 
+            (single_qr_code_size+self.whitespace)*col_len
+        ), dtype=np.uint8)
 
-            elif qr_code_type == 2:
-                for i in range(len(strings)):
-                    pass
-
-            elif qr_code_type == 3:
-                for i in range(len(strings)):
-                    pass
-
-            elif qr_code_type == 4:
-                for i in range(len(strings)):
-                    pass
-
-            elif qr_code_type == 5:
-                for i in range(len(strings)):
-                    pass
-
+        row_count = 0
+        col_count = 0
+        for qr_code_type in [0,1,2]:
+            for string in self.strings[qr_code_type]:
+                self.data[
+                    (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
+                    (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
+                ] = draw_qrcode(string)
+                col_count += 1
+            
+        for process_count in range(self.process_count):
+            row_count = process_count + 1
+            col_count = 0
+            for qr_code_type in [3,4,5]:
+                for string in self.strings[qr_code_type][process_count]:
+                    self.data[
+                        (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
+                        (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
+                    ] = draw_qrcode(string)
+                col_count += 1
+        return self.data
+        
 
 
 if __name__ == "__main__":
@@ -292,9 +309,17 @@ if __name__ == "__main__":
     ed.print()
     strings = ed.encode_qrs()
     print(strings)
+    data = ed.get_combined_qr_bits()
     from decode_devices import DecodeDevices
     dd = DecodeDevices()
-    for key in strings.keys():
-        for string in strings[key]:
-            dd.decode_qr(string)
+    for key0 in strings.keys():
+        if key0 in [0,1,2]:
+            for string in strings[key0]:
+                dd.decode_qr(string)
+        else:
+            for key1 in strings[key0].keys():
+                for string in strings[key0][key1]:
+                    dd.decode_qr(string)
+
+
     dd.print()

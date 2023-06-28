@@ -19,6 +19,7 @@ class DecodeDevices():
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
         print(f"devices = {self.devices}")
+        print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
         print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
@@ -27,6 +28,19 @@ class DecodeDevices():
         print(f"process_folder_names = {self.process_folder_names}")
         print(f"process_names = {self.process_names}")
         print(f"processes = {self.processes}")
+
+    def decode_qrs(
+            self, 
+            strings,
+        ):
+        for key0 in strings.keys():
+            if key0 in [0,1,2]:
+                for string in strings[key0]:
+                    self.decode_qr(string)
+            else:
+                for key1 in strings[key0].keys():
+                    for string in strings[key0][key1]:
+                        self.decode_qr(string)
 
     def decode_qr(
         self,
@@ -64,13 +78,9 @@ class DecodeDevices():
                     aruco_size                 = int(args[8])
                     folder_count_at_each_depth =     args[9:]
                     for device_count in range(start_device_count,end_device_count):
-                        self.devices[device_count] = {
-                            "x_len": device_x_len,
-                            "y_len": device_y_len,
-                        }
-                        self.device_folder_names[device_count] = {
-                            i: folder_count for (i, folder_count) in enumerate(folder_count_at_each_depth)
-                        }
+                        self.device_x_lens[device_count] = device_x_len
+                        self.device_y_lens[device_count] = device_y_len
+                        self.devices[device_count] = [self.device_folder_names[int(folder_count)] for folder_count in folder_count_at_each_depth]
                         self.device_aruco_x_offsets[device_count] = {}
                         self.device_aruco_y_offsets[device_count] = {}
                         self.device_aruco_sizes[device_count] = {}

@@ -33,6 +33,7 @@ class EncodeDevices():
         print(f"operator_name = {self.operator_name}")
         print(f"chip_name = {self.chip_name}")
         print(f"devices = {self.devices}")
+        print(f"device_folder_names = {self.device_folder_names}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
         print(f"device_aruco_x_offsets = {self.device_aruco_x_offsets}")
@@ -68,9 +69,10 @@ class EncodeDevices():
 
         self.devices[self.device_count] = []
         for folder_depth_count in range(len(device_folder_names)):
-            if device_folder_names[folder_depth_count] not in self.device_folder_names:
-                self.device_folder_names.append(device_folder_names[folder_depth_count])
-            self.devices[self.device_count].append(self.device_folder_names.index(device_folder_names[folder_depth_count]))
+            for device_folder_name in device_folder_names[folder_depth_count]:
+                if device_folder_name not in self.device_folder_names:
+                    self.device_folder_names.append(device_folder_name)
+                self.devices[self.device_count].append(self.device_folder_names.index(device_folder_name))
             
         self.processes[self.device_count] = {}
         for process_count in range(len(process_folder_names[0])):
@@ -311,20 +313,12 @@ if __name__ == "__main__":
     strings = ed.encode_qrs()
     print(strings)
     data = ed.get_combined_qr_bits()
-    cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
-    while(True):
-        if cv2.waitKey(0) & 0xFF == ord('q'):
-            break
+    #cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
+    #while(True):
+    #    if cv2.waitKey(0) & 0xFF == ord('q'):
+    #        break
     from decode_devices import DecodeDevices
     dd = DecodeDevices()
-    for key0 in strings.keys():
-        if key0 in [0,1,2]:
-            for string in strings[key0]:
-                dd.decode_qr(string)
-        else:
-            for key1 in strings[key0].keys():
-                for string in strings[key0][key1]:
-                    dd.decode_qr(string)
-
+    dd.decode_qrs(strings)
 
     dd.print()

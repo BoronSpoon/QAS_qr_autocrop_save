@@ -151,26 +151,13 @@ class EncodeDevices():
                             accumulated_string += current_string
 
             elif qr_code_type == 3:
-                accumulated_string = ""
                 string_header = f"{qr_code_type};"
                 for process_count in range(len(self.process_names)):
                     process_name = self.process_names[process_count]
                     current_string = "".join([
                         f'{process_count},{process_name};',
                     ])
-
-                    if process_count == len(self.process_names)-1: # last element
-                        if len(string_header + accumulated_string + current_string) > char_count_limit: # not within char_count_limit, split and append individually
-                            self.strings[qr_code_type].append(string_header + accumulated_string)
-                            self.strings[qr_code_type].append(string_header + current_string)
-                        else: # within char_count_limit
-                            self.strings[qr_code_type].append(string_header + accumulated_string + current_string)
-                    else: 
-                        if len(string_header + accumulated_string + current_string) > char_count_limit:  # not within char_count_limit, split and append the one within limit
-                            self.strings[qr_code_type].append(string_header + accumulated_string)
-                            accumulated_string = current_string
-                        else:
-                            accumulated_string += current_string
+                    self.strings[qr_code_type].append(string_header + current_string)
 
             elif qr_code_type == 4:
                 accumulated_string = ""
@@ -222,19 +209,31 @@ class EncodeDevices():
     def get_combined_qr_bits(
         self, 
     ):
-        for qr_code_type, strings in self.strings.items():
+        row_count = 0
+        column_count = 0
+        row_len = 1 + self.process_count
+        column_len = -1
+        for qr_code_type in range(len(self.strings)):
+            strings = self.strings[qr_code_type]
             if qr_code_type == 0:
-                pass
+                for i in range(len(strings)):
+                    column_count += 1
+
             elif qr_code_type == 1:
-                pass
+                for i in range(len(strings)):
+
             elif qr_code_type == 2:
-                pass
+                for i in range(len(strings)):
+
             elif qr_code_type == 3:
-                pass
+                for i in range(len(strings)):
+
             elif qr_code_type == 4:
-                pass
+                for i in range(len(strings)):
+
             elif qr_code_type == 5:
-                pass
+                for i in range(len(strings)):
+
 
 
 if __name__ == "__main__":

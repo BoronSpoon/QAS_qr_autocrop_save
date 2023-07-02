@@ -327,7 +327,7 @@ if __name__ == "__main__":
     strings = encoder.encode_qrs()
     #print(strings)
     data = encoder.get_combined_qr_bits()
-    cv2.imshow("frame", draw_qrcode_cv2(px_size=3))
+    cv2.imshow("frame", draw_qrcode_cv2(px_size=3, data=data))
     while(True):
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break

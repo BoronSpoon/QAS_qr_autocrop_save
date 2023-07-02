@@ -9,13 +9,15 @@ def get_aruco_pixels(dictionary=cv2.aruco.DICT_4X4_1000, id=0):
     data = cv2.aruco.generateImageMarker(dictionary, id, sidePixels=bits_count) # add borderbits
     return data
 
-def draw_aruco_cv2(px_size=10, dictionary=cv2.aruco.DICT_4X4_1000, id=0):
-    data = get_aruco_pixels(dictionary=dictionary, id=id)
+def draw_aruco_cv2(px_size=10, dictionary=cv2.aruco.DICT_4X4_1000, id=0, data=None):
+    if data is None:
+        data = get_aruco_pixels(dictionary=dictionary, id=id)
     frame = cv2.resize(255-data*255, (0, 0), fx=px_size, fy=px_size, interpolation=0)
     return frame
 
-def draw_aruco_polylines(xmin, ymin, px_size, dictionary=cv2.aruco.DICT_4X4_1000, id=0):
-    data = get_aruco_pixels(dictionary=dictionary, id=id)
+def draw_aruco_polylines(xmin, ymin, px_size, dictionary=cv2.aruco.DICT_4X4_1000, id=0, data=None):
+    if data is None:
+        data = get_aruco_pixels(dictionary=dictionary, id=id)
     polylines = []
     for y in range(data.shape[0]):
         for x in range(data.shape[1]):

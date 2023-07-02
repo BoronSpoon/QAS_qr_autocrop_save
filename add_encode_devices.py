@@ -65,6 +65,8 @@ class EncodeDevices():
         aruco_y_offsets, 
         aruco_size, 
     ):
+        self.device_x_mins[self.device_count] = device_x_min
+        self.device_y_mins[self.device_count] = device_y_min
         self.device_x_lens[self.device_count] = device_x_len
         self.device_y_lens[self.device_count] = device_y_len
 
@@ -95,8 +97,6 @@ class EncodeDevices():
                 if folder_depth_count == 0:
                     self.processes[self.device_count][process_count] = []
                 self.processes[self.device_count][process_count].append(self.process_folder_names[process_count].index(folder_name))
-
-
 
         self.device_count += 1 
         

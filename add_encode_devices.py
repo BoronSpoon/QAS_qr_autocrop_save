@@ -47,10 +47,13 @@ class EncodeDevices():
         print(f"process_names = {self.process_names}")
         print(f"processes = ")
         pprint(self.processes)
+
     def add_device(
         self,
         device_folder_names, # list of names of folder from parent to children
         process_folder_names, # list of names of folder from parent to children
+        device_x_min,
+        device_y_min,
         device_x_len, 
         device_y_len, 
         aruco_x_offsets, 
@@ -226,7 +229,7 @@ class EncodeDevices():
         for process_count in range(self.process_count):
             col_counts.append(len(self.strings[3][process_count]) + len(self.strings[4][process_count]) + len(self.strings[5][process_count]))
         
-        row_len = 1 + self.process_count
+        row_len = 1 + self.process_len
         col_len = max(col_counts)
 
         single_qr_code_size = len(draw_qrcode()) # get single qr code bits len 
@@ -245,7 +248,7 @@ class EncodeDevices():
                 ] = draw_qrcode(string)
                 col_count += 1
             
-        for process_count in range(self.process_count):
+        for process_count in range(self.process_len):
             row_count = process_count + 1
             col_count = 0
             for qr_code_type in [3,4,5]:
@@ -258,7 +261,7 @@ class EncodeDevices():
         return self.data
 
 if __name__ == "__main__":
-    ed = EncodeDevices(
+    encoder = EncodeDevices(
         operator_name = "Placeholder Operator Name",
         chip_name = "Placeholder Chip Name",
         process_names = ["EB", "MLE"],
@@ -301,25 +304,27 @@ if __name__ == "__main__":
             ],
         ],
     ):
-        ed.add_device(
+        encoder.add_device(
             device_folder_names = device_folder_names,
             process_folder_names = process_folder_names,
+            device_x_min = 0,
+            device_y_min = 0,
             device_x_len = 100,
             device_y_len = 10,
             aruco_x_offsets = [0],
             aruco_y_offsets = [0],
             aruco_size = 20,
         )
-    #ed.print()
-    strings = ed.encode_qrs()
+    #encoder.print()
+    strings = encoder.encode_qrs()
     #print(strings)
-    data = ed.get_combined_qr_bits()
-    #cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
-    #while(True):
-    #    if cv2.waitKey(0) & 0xFF == ord('q'):
-    #        break
+    data = encoder.get_combined_qr_bits()
+    cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
+    while(True):
+        if cv2.waitKey(0) & 0xFF == ord('q'):
+            break
     from decode_devices import DecodeDevices
-    dd = DecodeDevices()
-    dd.decode_qrs(strings)
+    decoder = DecodeDevices()
+    decoder.decode_qrs(strings)
 
-    dd.print()
+    decoder.print()

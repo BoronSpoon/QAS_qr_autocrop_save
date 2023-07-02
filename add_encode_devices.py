@@ -1,6 +1,7 @@
 # format rule
 # use range(len(arg)) because arg can be list or dict
-from draw_qr import draw_qrcode
+from draw_qr import get_qrcode_pixels
+from draw_aruco import get_qrcode_pixels
 import numpy as np
 import cv2
 from pprint import pprint
@@ -90,6 +91,8 @@ class EncodeDevices():
                 if folder_depth_count == 0:
                     self.processes[self.device_count][process_count] = []
                 self.processes[self.device_count][process_count].append(self.process_folder_names[process_count].index(folder_name))
+
+
 
         self.device_count += 1 
         
@@ -232,7 +235,7 @@ class EncodeDevices():
         row_len = 1 + self.process_len
         col_len = max(col_counts)
 
-        single_qr_code_size = len(draw_qrcode()) # get single qr code bits len 
+        single_qr_code_size = len(get_qrcode_pixels()) # get single qr code bits len 
         self.data = np.zeros(( # get (row,col) tiles qr code bits len
             single_qr_code_size*row_len + self.whitespace*(row_len-1),
             single_qr_code_size*col_len + self.whitespace*(col_len-1),

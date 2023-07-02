@@ -5,6 +5,8 @@ class DecodeDevices():
         self.operator_name = "Placeholder Operator Name",
         self.chip_name = "Placeholder Chip Name"
         self.devices = {}
+        self.device_x_mins = {}
+        self.device_y_mins = {}
         self.device_x_lens = {}
         self.device_y_lens = {}
         self.device_aruco_x_offsets = {}
@@ -23,6 +25,8 @@ class DecodeDevices():
         print(f"devices = ")
         pprint(self.devices)
         #print(f"device_folder_names = {self.device_folder_names}")
+        print(f"device_x_mins = {self.device_x_mins}")
+        print(f"device_y_mins = {self.device_y_mins}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
         print(f"device_aruco_x_offsets = ")
@@ -77,13 +81,17 @@ class DecodeDevices():
                     end_device_count           = int(args[1])
                     start_aruco_count          = int(args[2])
                     end_aruco_count            = int(args[3])
-                    device_x_len               = int(args[4])
-                    device_y_len               = int(args[5])
-                    aruco_x_offset             = int(args[6])
-                    aruco_y_offset             = int(args[7])
-                    aruco_size                 = int(args[8])
-                    folder_count_at_each_depth =     args[9:]
+                    device_x_min               = int(args[4])
+                    device_y_min               = int(args[5])
+                    device_x_len               = int(args[6])
+                    device_y_len               = int(args[7])
+                    aruco_x_offset             = int(args[8])
+                    aruco_y_offset             = int(args[9])
+                    aruco_size                 = int(args[10])
+                    folder_count_at_each_depth =     args[11:]
                     for device_count in range(start_device_count,end_device_count):
+                        self.device_x_mins[device_count] = device_x_min
+                        self.device_y_mins[device_count] = device_y_min
                         self.device_x_lens[device_count] = device_x_len
                         self.device_y_lens[device_count] = device_y_len
                         self.devices[device_count] = [self.device_folder_names[int(folder_count)] for folder_count in folder_count_at_each_depth]

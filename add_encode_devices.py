@@ -16,6 +16,8 @@ class EncodeDevices():
         self.operator_name = operator_name
         self.chip_name = chip_name
         self.devices = {}
+        self.device_x_mins = {}
+        self.device_y_mins = {}
         self.device_x_lens = {}
         self.device_y_lens = {}
         self.device_aruco_x_offsets = {}
@@ -37,6 +39,8 @@ class EncodeDevices():
         print(f"devices = ")
         pprint(self.devices)
         #print(f"device_folder_names = {self.device_folder_names}")
+        print(f"device_x_mins = {self.device_x_mins}")
+        print(f"device_y_mins = {self.device_y_mins}")
         print(f"device_x_lens = {self.device_x_lens}")
         print(f"device_y_lens = {self.device_y_lens}")
         print(f"device_aruco_x_offsets = ")
@@ -149,6 +153,7 @@ class EncodeDevices():
                         current_string = "".join([
                             f'{device_count},{device_count+1},',
                             f'{aruco_count},{aruco_count+1},',
+                            f'{self.device_x_mins[device_count]},{self.device_y_mins[device_count]},',
                             f'{self.device_x_lens[device_count]},{self.device_y_lens[device_count]},',
                             f'{self.device_aruco_x_offsets[device_count][aruco_count]},{self.device_aruco_y_offsets[device_count][aruco_count]},',
                             f'{self.device_aruco_sizes[device_count]},',

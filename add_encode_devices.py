@@ -1,6 +1,6 @@
 # format rule
 # use range(len(arg)) because arg can be list or dict
-from draw_qr import *
+from draw_qrcode import *
 from draw_aruco import *
 import numpy as np
 import cv2
@@ -111,16 +111,16 @@ class EncodeDevices():
         aruco_size=10, # 10um default aruco size
     ):
         aruco_x_offsets=[
-            [device_x_min - 6*aruco_size] # bottom left  (-x, -y)
-            [device_x_min + device_x_len] # bottom right (x,  -y)
-            [device_x_min - 6*aruco_size] # top left     (-x, y)
-            [device_x_min + device_x_len] # top right    (x,  y)
+            [device_x_min - 6*aruco_size], # bottom left  (-x, -y)
+            [device_x_min + device_x_len], # bottom right (x,  -y)
+            [device_x_min - 6*aruco_size], # top left     (-x, y)
+            [device_x_min + device_x_len], # top right    (x,  y)
         ]
         aruco_y_offsets=[
-            [device_y_min - 6*aruco_size] # bottom left  (-x, -y)
-            [device_y_min - 6*aruco_size] # bottom right (x,  -y)
-            [device_y_min + device_y_len] # top left     (-x, y)
-            [device_y_min + device_y_len] # top right    (x,  y)
+            [device_y_min - 6*aruco_size], # bottom left  (-x, -y)
+            [device_y_min - 6*aruco_size], # bottom right (x,  -y)
+            [device_y_min + device_y_len], # top left     (-x, y)
+            [device_y_min + device_y_len], # top right    (x,  y)
         ]
         self.add_device( # add_device with aruco at 4 corners (used for default configuration)
             device_folder_names, # list of names of folder from parent to children

@@ -28,7 +28,7 @@ def draw_aruco_polylines(xmin, ymin, px_size, dictionary=cv2.aruco.DICT_4X4_1000
                     [xmin + (x+1)*px_size, ymin + (y+1)*px_size],
                     [xmin + (x+1)*px_size, ymin + y*px_size],
                 ])
-    return polylines
+    return np.array(polylines)
 
 if __name__ == "__main__":
     frame = get_aruco_pixels(id=100)

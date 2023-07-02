@@ -30,7 +30,7 @@ def draw_qrcode_polylines(xmin, ymin, px_size, string="", error="Q", version=8):
                     [xmin + (x+1)*px_size, ymin + (y+1)*px_size],
                     [xmin + (x+1)*px_size, ymin + y*px_size],
                 ])
-    return 
+    return polylines
     
 if __name__ == "__main__":
     data = get_qrcode_pixels(string="test")

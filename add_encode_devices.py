@@ -1,7 +1,7 @@
 # format rule
 # use range(len(arg)) because arg can be list or dict
-from draw_qr import get_qrcode_pixels
-from draw_aruco import get_qrcode_pixels
+from draw_qr import *
+from draw_aruco import *
 import numpy as np
 import cv2
 from pprint import pprint
@@ -248,7 +248,7 @@ class EncodeDevices():
                 self.data[
                     (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                     (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
-                ] = draw_qrcode(string)
+                ] = get_qrcode_pixels(string)
                 col_count += 1
             
         for process_count in range(self.process_len):
@@ -259,7 +259,7 @@ class EncodeDevices():
                     self.data[
                         (single_qr_code_size+self.whitespace)*row_count: (single_qr_code_size+self.whitespace)*row_count + single_qr_code_size,
                         (single_qr_code_size+self.whitespace)*col_count: (single_qr_code_size+self.whitespace)*col_count + single_qr_code_size,
-                    ] = draw_qrcode(string)
+                    ] = get_qrcode_pixels(string)
                 col_count += 1
         return self.data
 
@@ -322,7 +322,7 @@ if __name__ == "__main__":
     strings = encoder.encode_qrs()
     #print(strings)
     data = encoder.get_combined_qr_bits()
-    cv2.imshow("frame", cv2.resize(255-data*255, (0, 0), fx=3, fy=3, interpolation=0))
+    cv2.imshow("frame", draw_qrcode_cv2(px_size=3))
     while(True):
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break

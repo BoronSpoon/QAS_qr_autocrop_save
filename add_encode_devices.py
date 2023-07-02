@@ -100,6 +100,33 @@ class EncodeDevices():
 
         self.device_count += 1 
         
+    def add_device_4_corners( # add_device with (used for default configuration)
+        self,
+        device_folder_names, # list of names of folder from parent to children
+        process_folder_names, # list of names of folder from parent to children
+        device_x_min,
+        device_y_min,
+        device_x_len, 
+        device_y_len, 
+        aruco_size=10, # 10um default aruco size
+    ):
+        self.add_device( # add_device with aruco at 4 corners (used for default configuration)
+            device_folder_names, # list of names of folder from parent to children
+            process_folder_names, # list of names of folder from parent to children
+            device_x_min,
+            device_y_min,
+            device_x_len, 
+            device_y_len, 
+            aruco_x_offsets=[
+                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # bottom left  (-x, -y)
+                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # bottom right (x,  -y)
+                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # top left     (-x, y)
+                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # top right    (x,  y)
+            ], 
+            aruco_y_offsets, 
+            aruco_size, 
+        )
+
     def encode_qrs(
         self,
         qr_code_type_count = 6,

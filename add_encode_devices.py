@@ -118,13 +118,18 @@ class EncodeDevices():
             device_x_len, 
             device_y_len, 
             aruco_x_offsets=[
-                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # bottom left  (-x, -y)
-                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # bottom right (x,  -y)
-                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # top left     (-x, y)
-                [device_x_min-6*aruco_size, device_x_min-6*aruco_size] # top right    (x,  y)
+                [device_x_min-6*aruco_size] # bottom left  (-x, -y)
+                [device_x_min+device_x_len] # bottom right (x,  -y)
+                [device_x_min-6*aruco_size] # top left     (-x, y)
+                [device_x_min+device_x_len] # top right    (x,  y)
             ], 
-            aruco_y_offsets, 
-            aruco_size, 
+            aruco_y_offsets=[
+                [device_y_min-6*aruco_size] # bottom left  (-x, -y)
+                [device_y_min-6*aruco_size] # bottom right (x,  -y)
+                [device_y_min+device_y_len] # top left     (-x, y)
+                [device_y_min+device_y_len] # top right    (x,  y)
+            ],
+            aruco_size=aruco_size, 
         )
 
     def encode_qrs(
